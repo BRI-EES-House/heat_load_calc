@@ -116,7 +116,7 @@ class InputRoom:
             raise ValueError(VI('natural', 'ventilation'))
 
         if v_vent_ntr_set < 0.0:
-            raise ValueError(RGE('natural', 'ventilation', 0.0))
+            raise ValueError(RGE('natural', 'ventilation', '0.0'))
         
         # MET
 

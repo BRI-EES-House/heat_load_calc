@@ -1,22 +1,457 @@
 import os
 import json
 import unittest
+import pytest
 import numpy as np
 from typing import Dict
 
 from heat_load_calc import boundaries
 from heat_load_calc.boundaries import Boundaries
-from heat_load_calc.boundaries import BoundaryType
 from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.weather import Weather
 from heat_load_calc import shape_factor
-from heat_load_calc.window import GlassType
 from heat_load_calc.window import Window
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
-from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.tenum import EShapeFactorMethod, EBoundaryType, EGlassType
+from heat_load_calc.input_models.input_boundary import (
+    InputBoundary,
+    InputBoundaryExternalGeneralPart,
+    InputBoundaryExternalTransparentPart,
+    InputBoundaryExternalOpaquePart,
+    InputBoundaryGround,
+    InputBoundaryInternal
+)
+from heat_load_calc.input_models.input_solar_shading_part import (
+    InputSolarShadingPart,
+    InputSolarShadingPartSimple,
+    InputSolarShadingPartDetail,
+    InputSolarShadingPartNot
+)
+from heat_load_calc.input_models.input_layer import InputLayer
+from heat_load_calc.boundary_component import BoundaryComponent, BoundaryComponentResponseFactor, BoundaryComponents
+
+
+def get_input_boundaries():
+
+    ipt_boundaries = [
+        InputBoundaryExternalGeneralPart(
+            id=1,
+            name='s_wall_1F_room',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=3,
+            name='w_wall_1F_room',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.W,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=5,
+            name='e_wall_1F_room',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.E,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=7,
+            name='n_wall_1F_room',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.N,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=9,
+            name='floor_1F_room',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=True,
+            is_floor=True,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.BOTTOM,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=11,
+            name='s_wall_2F_room',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=13,
+            name='w_wall_2F_room',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.W,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=15,
+            name='e_wall_2F_room',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.E,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=17,
+            name='n_wall_2F_room',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.N,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalGeneralPart(
+            id=19,
+            name='roof_2F_room',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.EXTERNAL_GENERAL_PART,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.TOP,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_solar_absorption=0.8,
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            ipt_layers=[
+                InputLayer(name='wood_board-12', thermal_resistance=0.075, thermal_capacity=8.64),
+                InputLayer(name='hgw24k-100', thermal_resistance=2.777777777777778, thermal_capacity=2.0)
+            ]
+        ),
+        InputBoundaryExternalTransparentPart(
+            id=21,
+            name='south_window_1F_room',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            u_value=4.65,
+            eta_value=0.792,
+            glass_area_ratio=0.8,
+            incident_angle_characteristics=EGlassType.MULTIPLE,
+            inside_heat_transfer_resistance=0.11
+        ),
+        InputBoundaryExternalTransparentPart(
+            id=23,
+            name='south_window_2F_room',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+            area=0.5,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            temp_dif_coef=1.0,
+            is_sun_striked_outside=True,
+            direction=Direction.S,
+            solar_shading_part=InputSolarShadingPartNot(existence=False),
+            outside_heat_transfer_resistance=0.04,
+            outside_emissivity=0.9,
+            u_value=4.65,
+            eta_value=0.792,
+            glass_area_ratio=0.8,
+            incident_angle_characteristics=EGlassType.MULTIPLE,
+            inside_heat_transfer_resistance=0.11
+        ),
+        InputBoundaryInternal(
+            id=25,
+            name='internal_1',
+            sub_name='',
+            connected_room_id=2,
+            boundary_type=EBoundaryType.INTERNAL,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=False,
+            is_floor=False,
+            rear_surface_boundary_id=27,
+            ipt_layers=[
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96),
+                InputLayer(name='air_space', thermal_resistance=0.07, thermal_capacity=0.0),
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96)
+            ]
+        ),
+        InputBoundaryInternal(
+            id=27,
+            name='internal_2',
+            sub_name='',
+            connected_room_id=4,
+            boundary_type=EBoundaryType.INTERNAL,
+            area=1.0,
+            inside_emissivity=0.9,
+            h_c=2.5,
+            is_solar_absorbed_inside=True,
+            is_floor=True,
+            rear_surface_boundary_id=25,
+            ipt_layers=[
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96),
+                InputLayer(name='air_space', thermal_resistance=0.07, thermal_capacity=0.0),
+                InputLayer(name='gypsum_board-12', thermal_resistance=0.055, thermal_capacity=9.96)
+            ]
+        ),
+    ]
+
+    return ipt_boundaries
+
+
+def make_boundaries():
+
+    d = _read_input_file()
+
+    w = _get_weather_class()
+
+    id_r_is = np.array([2,4]).reshape(-1, 1)
+
+    ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
+
+    ipt_boundaries = get_input_boundaries()
+
+    bs = Boundaries.create(id_r_is=id_r_is, w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
+
+    return bs
+
+
+def test_values():
+
+    bs = make_boundaries()
+
+    # number of boundaries
+    assert bs.n_b == 14
+
+    # number of ground of boundaries
+    assert bs.n_ground == 0
+
+    # id
+    np.testing.assert_array_equal(
+        bs.id_js,
+        np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
+    )
+
+    # name
+    np.testing.assert_array_equal(
+        bs.name_js,
+        np.array([
+            "s_wall_1F_room",
+            "w_wall_1F_room",
+            "e_wall_1F_room",
+            "n_wall_1F_room",
+            "floor_1F_room",
+            "s_wall_2F_room",
+            "w_wall_2F_room",
+            "e_wall_2F_room",
+            "n_wall_2F_room",
+            "roof_2F_room",
+            "south_window_1F_room",
+            "south_window_2F_room",
+            "internal_1",
+            "internal_2"
+        ]).reshape(-1, 1)
+    )
+
+        # sub name
+
+    # sub name
+    np.testing.assert_array_equal(
+        bs.sub_name_js,
+        np.full(shape=(14,1), fill_value="", dtype=str)
+    )
+
+    # connected room id
+    np.testing.assert_array_equal(
+        bs.connected_room_id_js,
+        np.array([2,2,2,2,2,4,4,4,4,4,2,4,2,4]).reshape(-1, 1)
+    )
+
+    # p_is_js
+    np.testing.assert_array_equal(
+        bs.p_is_js,
+        np.array([
+            [1,1,1,1,1,0,0,0,0,0,1,0,1,0],
+            [0,0,0,0,0,1,1,1,1,1,0,1,0,1]
+        ])
+    )
+
+    # p_js_is
+    np.testing.assert_equal(
+        bs.p_js_is,
+        np.array([
+            [1,0],
+            [1,0],
+            [1,0],
+            [1,0],
+            [1,0],
+            [0,1],
+            [0,1],
+            [0,1],
+            [0,1],
+            [0,1],
+            [1,0],
+            [0,1],
+            [1,0],
+            [0,1]
+        ])
+    )
+
 
 
 class TestBoundaries(unittest.TestCase):
@@ -30,7 +465,9 @@ class TestBoundaries(unittest.TestCase):
 
         id_r_is = np.array([2,4]).reshape(-1, 1)
 
-        bs = Boundaries(id_r_is=id_r_is, ds=d['boundaries'], w=w, rad_method=EShapeFactorMethod.NAGATA)
+        ipt_boundaries = [InputBoundary.read(d=d_boundary) for d_boundary in d['boundaries']]
+
+        bs = Boundaries.create(id_r_is=id_r_is, w=w, rad_method=EShapeFactorMethod.NAGATA, ipt_boundaries=ipt_boundaries)
 
         cls._bs: Boundaries = bs
 
@@ -131,88 +568,6 @@ class TestBoundaries(unittest.TestCase):
                 connected_room_id_js=np.array([0,3,3,7,7,7,7,5,5,5]).reshape(-1, 1)
             )
 
-    def test_n_b(self):
-
-        # number of boundaries        
-        self.assertEqual(14, self._bs.n_b)
-    
-    def test_n_ground(self):
-
-        # number of grounds
-        self.assertEqual(0, self._bs.n_ground)
-
-    def test_id(self):
-
-        # id
-        np.testing.assert_array_equal(_get_id_js(), self._bs.id_js)
-
-    def test_name(self):
-
-        # name
-        np.testing.assert_array_equal(
-            np.array([
-                "s_wall_1F_room",
-                "w_wall_1F_room",
-                "e_wall_1F_room",
-                "n_wall_1F_room",
-                "floor_1F_room",
-                "s_wall_2F_room",
-                "w_wall_2F_room",
-                "e_wall_2F_room",
-                "n_wall_2F_room",
-                "roof_2F_room",
-                "south_window_1F_room",
-                "south_window_2F_room",
-                "internal_1",
-                "internal_2"
-            ]).reshape(-1, 1),
-            self._bs.name_js
-        )
-    
-    def test_sub_name(self):
-
-        # sub name
-        np.testing.assert_array_equal(
-            np.full(shape=(14,1), fill_value="", dtype=str),
-            self._bs.sub_name_js
-        )
-    
-    def test_connected_room_id(self):
-
-        # connected room id
-        np.testing.assert_equal(
-            np.array([2,2,2,2,2,4,4,4,4,4,2,4,2,4]).reshape(-1, 1),
-            self._bs.connected_room_id_js
-        )
-    
-    def test_p_is_js(self):
-
-        # matrix of relationship between rooms and boundaries
-        np.testing.assert_equal(_get_p_is_js(), self._bs.p_is_js)
-
-    def test_p_js_is(self):
-
-        # matrix of relationship between rooms and boundaries
-        np.testing.assert_equal(
-            np.array([
-                [1,0],
-                [1,0],
-                [1,0],
-                [1,0],
-                [1,0],
-                [0,1],
-                [0,1],
-                [0,1],
-                [0,1],
-                [0,1],
-                [1,0],
-                [0,1],
-                [1,0],
-                [0,1]
-            ]),
-            self._bs.p_js_is
-        )
-    
     def test_b_floor(self):
 
         # is boundary floor ?
@@ -306,9 +661,9 @@ class TestBoundaries(unittest.TestCase):
         h_s_c_js = _get_h_s_c_js()
         h_s_r_js = _get_h_s_r_js()
 
-        rfs = _get_response_factor()
+        bcomps = _get_bcomps()
 
-        r_total_js = np.array([rf.r_total for rf in rfs]).reshape(-1, 1)
+        r_total_js = bcomps.r_total_js
 
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
          
@@ -326,43 +681,13 @@ class TestBoundaries(unittest.TestCase):
 
     def test_phi_a0_js(self):
 
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rfa0 for rf in rfs]).reshape(-1, 1),
-            self._bs.phi_a0_js
-        )
+        bcomps = _get_bcomps()
+        np.testing.assert_equal(bcomps.phi_a0_js, self._bs.phi_a0_js)
     
-    def test_phi_a1_js(self):
-
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rfa1 for rf in rfs]),
-            self._bs.phi_a1_js_ms
-        )
-
     def test_phi_t0_js(self):
 
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rft0 for rf in rfs]).reshape(-1, 1),
-            self._bs.phi_t0_js
-        )
-    
-    def test_phi_t1_js(self):
-
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.rft1 for rf in rfs]),
-            self._bs.phi_t1_js_ms
-        )
-    
-    def test_r_js_ms(self):
-
-        rfs = _get_response_factor()
-        np.testing.assert_equal(
-            np.array([rf.row for rf in rfs]),
-            self._bs.r_js_ms
-        )
+        bcomps = _get_bcomps()
+        np.testing.assert_equal(bcomps.phi_t0_js, self._bs.phi_t0_js)
     
     def test_o_eqv_js_nspls(self):
 
@@ -390,10 +715,10 @@ class TestBoundaries(unittest.TestCase):
 
             match t_b_j:
 
-                case BoundaryType.INTERNAL:
+                case EBoundaryType.INTERNAL:
                     return outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=self._w)
 
-                case BoundaryType.EXTERNAL_GENERAL_PART:
+                case EBoundaryType.EXTERNAL_GENERAL_PART:
                     
                     if b_sun_strkd_out_j:
                         
@@ -405,7 +730,7 @@ class TestBoundaries(unittest.TestCase):
 
                         return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=self._w)
 
-                case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+                case EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
                     if b_sun_strkd_out_j:
 
@@ -450,11 +775,11 @@ class TestBoundaries(unittest.TestCase):
 
             match t_b_j:
 
-                case BoundaryType.INTERNAL | BoundaryType.EXTERNAL_GENERAL_PART:
+                case EBoundaryType.INTERNAL | EBoundaryType.EXTERNAL_GENERAL_PART:
 
                     return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=self._w)
                 
-                case BoundaryType.EXTERNAL_TRANSPARENT_PART:
+                case EBoundaryType.EXTERNAL_TRANSPARENT_PART:
 
                     return transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
                         t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j, w=self._w
@@ -489,7 +814,10 @@ def _get_ssp_js():
     ssp_dict_js = np.array([ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, ssp_dict, None, None])
 
     ssp_js = [
-        SolarShading.create(ssp_dict=ssp_dict_j, direction=t_drct_j) if b_sun_strkd_out_j else None
+        SolarShading.create(
+            direction=t_drct_j,
+            input_solar_shading_part=InputSolarShadingPart.read(d=ssp_dict_j, direction=t_drct_j)
+        ) if b_sun_strkd_out_j else None
         for (ssp_dict_j, t_drct_j, b_sun_strkd_out_j)
         in zip(ssp_dict_js, t_drct_js, b_sun_stkd_out_js)
     ]
@@ -512,9 +840,9 @@ def _get_window_js():
     r_a_w_g_js = np.array([None, None, None, None, None, None, None, None, None, None, 0.8, 0.8, None, None])
 
     # grazing type of boundary, [J]
-    t_glz_js = np.array([None, None, None, None, None, None, None, None, None, None, GlassType.MULTIPLE, GlassType.MULTIPLE, None, None])
+    t_glz_js = np.array([None, None, None, None, None, None, None, None, None, None, EGlassType.MULTIPLE, EGlassType.MULTIPLE, None, None])
 
-    window_js = np.array([Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j) if t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART else None
+    window_js = np.array([Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j) if t_b_j == EBoundaryType.EXTERNAL_TRANSPARENT_PART else None
         for (t_b_j, u_w_std_j, eta_w_std_j, t_glz_j, r_a_w_g_j)
         in zip(t_b_js, u_w_std_js, eta_w_std_js, t_glz_js, r_a_w_g_js)
     ])
@@ -540,48 +868,35 @@ def _get_t_b_js():
     """[J]"""
 
     return np.array([
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.INTERNAL,
-        BoundaryType.INTERNAL
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_GENERAL_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.EXTERNAL_TRANSPARENT_PART,
+        EBoundaryType.INTERNAL,
+        EBoundaryType.INTERNAL
     ])   
 
 
-def _get_response_factor():
+def _get_bcomps() -> BoundaryComponents:
 
-    ds = _read_input_file()
-    h_s_c_rear_js = _get_h_s_c_rear_js()
-    h_s_r_rear_js = _get_h_s_r_rear_js()
-    id_js = _get_id_js().flatten()
-    t_b_js = _get_t_b_js()
-    r_s_o_js = np.array([0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, None, None])
-    u_w_std_js = np.array([None, None, None, None, None, None, None, None, None, None, 4.65, 4.65, None, None])
+    h_s_c_js = _get_h_s_c_js()
+    h_s_r_js = _get_h_s_r_js()
 
+    ipt_boundaries = get_input_boundaries()
 
-    rfs = [
-        boundaries._get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
-        for (d, h_s_c_rear_j, h_s_r_rear_j, id_j, t_b_j, r_s_o_j, u_w_std_j)
-        in zip(ds['boundaries'], h_s_c_rear_js, h_s_r_rear_js, id_js, t_b_js, r_s_o_js, u_w_std_js)
-    ]
+    id_js = np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
 
-    return rfs
-
-
-def _get_id_js():
-    """[J, 1]"""
-
-    return np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
-
+    return BoundaryComponents.create(
+        bcomplist=[boundaries.Boundary._get_boundary_component(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
+    )
 
 def _get_p_is_js():
     """[I, J]"""

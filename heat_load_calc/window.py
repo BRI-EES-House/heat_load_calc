@@ -4,6 +4,8 @@ from math import sin, cos, pi
 import numpy as np
 from abc import ABC, abstractmethod
 
+from heat_load_calc.tenum import EGlassType
+
 T = TypeVar("T", float, np.ndarray)
 
 class FlameType(Enum):
@@ -55,16 +57,6 @@ class FlameType(Enum):
         }[self]
 
 
-class GlassType(Enum):
-    """ガラスの構成
-    """
-
-    # 単層
-    SINGLE = 'single'
-    # 複層
-    MULTIPLE = 'multiple'
-
-
 class Glazing(ABC):
 
     # The number of segments
@@ -72,7 +64,7 @@ class Glazing(ABC):
     M = 1000
 
     @classmethod
-    def create(cls, t_glz_j: GlassType, u_w_g_j: float, eta_w_g_j: float):
+    def create(cls, t_glz_j: EGlassType, u_w_g_j: float, eta_w_g_j: float):
         """create class
 
         Args:
@@ -83,11 +75,11 @@ class Glazing(ABC):
 
         match t_glz_j:
 
-            case GlassType.SINGLE:
+            case EGlassType.SINGLE:
 
                 return SingleGlazing(u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
 
-            case GlassType.MULTIPLE:
+            case EGlassType.MULTIPLE:
 
                 # When glass type is multiple, double glazing is assumed as multiple in this calculation.
                 return DoubleGlazing(u_w_g_j=u_w_g_j, eta_w_g_j=eta_w_g_j)
@@ -506,7 +498,7 @@ class Window:
             self,
             u_w_std_j: float,
             eta_w_std_j: float,
-            t_glz_j: GlassType,
+            t_glz_j: EGlassType,
             r_a_w_g_j: Optional[float] = None,
             t_flame: FlameType = FlameType.MIXED_WOOD
         ):

@@ -4,10 +4,10 @@ from typing import Dict, Callable, Tuple
 import logging
 
 from heat_load_calc.matrix_method import v_diag
-from heat_load_calc import next_condition, rooms, boundaries
+from heat_load_calc import next_condition
 from heat_load_calc import occupants_form_factor, shape_factor, solar_absorption
 from heat_load_calc import operation_mode
-from heat_load_calc import occupants, psychrometrics as psy
+from heat_load_calc import occupants
 from heat_load_calc.global_number import get_c_a, get_rho_a, get_l_wtr
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
@@ -21,7 +21,7 @@ from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 from heat_load_calc.interval import Interval
-from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc import boundaries
 
 
 # ロガー
@@ -37,8 +37,8 @@ class Sequence:
             weather: Weather,
             scd: Schedule,
             bdg: Building,
-            shape_factor_method: EShapeFactorMethod,
-            rms: Rooms
+            rms: Rooms,
+            bs: Boundaries
         ):
         """
         Args:
@@ -47,14 +47,12 @@ class Sequence:
             weather: Weather class
             scd: Schedule class
             bdg: Building class
-            shape_factor_method: method for calculating shape factor inside the room (Nagata or Area Averaged)
             rooms: Rooms class
+            bs: Boundaries class
         """
 
         # 時間間隔, s
         delta_t = itv.get_delta_t()
-
-        bs = boundaries.Boundaries(id_r_is=rms.id_r_is, ds=d['boundaries'], w=weather, rad_method=shape_factor_method)
 
         # MechanicalVentilation Class
         mvs = MechanicalVentilations(ds=d['mechanical_ventilations'], n_rm=rms.n_r)
@@ -103,20 +101,14 @@ class Sequence:
             r_sol_frt_is=rms.r_sol_frt_is
         )
 
-        # f_AX, -, [j, j]
-        f_ax_js_js = bs.get_f_ax_js_is(f_mrt_is_js=f_mrt_is_js)
-
-        # f_FIA, -, [J, I]
-        f_fia_js_is = bs.get_f_fia_js_is()
-
-        # f_CRX, degree C, [J, N]
-        f_crx_js_ns = bs.get_f_crx_js_ns(q_s_sol_js_ns=q_s_sol_js_ns)
+        # f_AX, -, [J, J]
+        f_ax_js_js = bs.f_ax_js_js
 
         # f_WSR, -, [J, I]
-        f_wsr_js_is = get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
+        f_wsr_js_is = bs.f_wsr_js_is
 
         # f_{WSC, n}, degree C, [J, N]
-        f_wsc_js_ns = get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, f_crx_js_ns=f_crx_js_ns)
+        f_wsc_js_ns = bs.get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, q_s_sol_js_ns=q_s_sol_js_ns)
 
         # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
         # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
@@ -128,6 +120,16 @@ class Sequence:
             f_wsr_js_is= f_wsr_js_is,
             k_c_is_n=k_c_is_n,
             k_r_is_n=k_r_is_n
+        )
+
+        f_wsb_h_js_is = bs.get_f_wsb_js_is(
+            beta_is=es.beta_h_is,
+            f_flr_js_is=es.f_flr_h_js_is
+        )
+
+        f_wsb_c_js_is = bs.get_f_wsb_js_is(
+            beta_is=es.beta_c_is,
+            f_flr_js_is=es.f_flr_c_js_is
         )
 
         # 時間間隔クラス
@@ -203,6 +205,9 @@ class Sequence:
 
         # f_{XOT, i, i}, [I, I]
         self._f_xot_is_is_n_pls = f_xot_is_is_n_pls
+
+        self.f_wsb_h_js_is = f_wsb_h_js_is
+        self.f_wsb_c_js_is = f_wsb_c_js_is
 
     @property
     def weather(self) -> Weather:
@@ -485,6 +490,7 @@ class Sequence:
         theta_s_ntr_non_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_non_nv_is_n_pls) + self.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
         theta_s_ntr_nv_js_n_pls = np.dot(self.f_wsr_js_is, theta_r_ntr_nv_is_n_pls) + self.f_wsc_js_ns[:, n + 1].reshape(-1, 1) + f_wsv_js_n_pls
 
+        # TODO: ここはf_mrt ではなくて、f_mrt_hum ではないのか？
         theta_mrt_hum_ntr_non_nv_is_n_pls = np.dot(self.f_mrt_is_js, theta_s_ntr_non_nv_js_n_pls)
         theta_mrt_hum_ntr_nv_is_n_pls = np.dot(self.f_mrt_is_js, theta_s_ntr_nv_js_n_pls)
 
@@ -599,24 +605,15 @@ class Sequence:
             operation_mode_is_n=operation_mode_is_n
         )
 
-        # ステップ n における係数 f_FLB, K/W, [j, i]
-        #f_flb_js_is_n_pls = get_f_flb_js_is_n_pls(
-            #a_s_js=self.bs.a_s_js,
-            #beta_is_n=beta_is_n,
-            #f_flr_js_is_n=f_flr_js_is_n,
-            #h_s_c_js=self.bs.h_s_c_js,
-            #h_s_r_js=self.bs.h_s_r_js,
-            #k_ei_js_js=self.bs.k_ei_js_js,
-            #phi_a0_js=self.bs.phi_a0_js,
-            #phi_t0_js=self.bs.phi_t0_js
-        #)
-        f_flb_js_is_n_pls = self.bs.get_f_flb_js_is_n_pls(beta_is_n=beta_is_n, f_flr_js_is_n=f_flr_js_is_n)
+        # 係数 f_WSB（暖房）, K/W, [J, I]
+        f_wsb_h_js_is = self.f_wsb_h_js_is
 
-        # ステップ n における係数 f_WSB, K/W, [j, i]
-        f_wsb_js_is_n_pls = get_f_wsb_js_is_n_pls(
-            f_flb_js_is_n_pls=f_flb_js_is_n_pls,
-            f_ax_js_js=self.f_ax_js_js
-        )
+        # 係数 f_WSB（冷房）, K/W, [J, I]
+        f_wsb_c_js_is = self.f_wsb_c_js_is
+
+        # 係数 f_WSB, K/W, [J, I]
+        f_wsb_js_is_n_pls = f_wsb_h_js_is * (operation_mode_is_n == OperationMode.HEATING).T\
+            + f_wsb_c_js_is * (operation_mode_is_n == OperationMode.COOLING).T
 
         # ステップ n における係数 f_BRL, -, [i, i]
         f_brl_is_is_n = get_f_brl_is_is_n(
@@ -903,7 +900,33 @@ class Sequence:
 
     def run_tick_ground(self, gc_n: GroundConditions, n: int):
 
-        return _run_tick_ground(self=self, gc_n=gc_n, n=n)
+        #return _run_tick_ground(self=self, gc_n=gc_n, n=n)
+
+        is_ground = self.bs.b_ground_js.flatten()
+
+        theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
+
+        h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
+
+        theta_dsh_srf_a_js_ms_npls = self.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
+        #theta_dsh_srf_a_js_ms_npls = self.bs.bcomps_ground.phi_a1_js_ms * gc_n.q_srf_js_n + self.bs.bcomps_ground.r_js_ms * gc_n.theta_dsh_srf_a_js_ms_n
+
+        theta_dsh_srf_t_js_ms_npls = self.bs.phi_t1_js_ms[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
+
+        theta_s_js_npls = (
+            self.bs.phi_a0_js[is_ground, :] * h_i_js * self.weather.theta_o_ns_plus[n + 1]
+            + self.bs.phi_t0_js[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
+            + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
+            + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
+        ) / (1.0 + self.bs.phi_a0_js[is_ground, :] * h_i_js)
+
+        q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
+
+        return GroundConditions(
+            theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
+            theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
+            q_srf_js_n=q_srf_js_n,
+        )
 
 
 def test_air_heat_balance(
@@ -1239,79 +1262,8 @@ def test_theta_surface(
     right = phi_a0_js * q_i_s_js + phi_t0_js * theta_rear_js + f_cvl_js
     test_balance_check(left=left, right=right, quantity="surface temperature")
 
-def _run_tick_ground(self, gc_n: GroundConditions, n: int):
-    """地盤の計算
-
-    Args:
-        pp:
-        gc_n:
-        n:
-
-    Returns:
-
-    """
-
-    is_ground = self.bs.b_ground_js.flatten()
-
-    theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
-
-    h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
-
-    theta_dsh_srf_a_js_ms_npls = self.bs.phi_a1_js_ms[is_ground, :] * gc_n.q_srf_js_n + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_a_js_ms_n
-
-    theta_dsh_srf_t_js_ms_npls = self.bs.phi_t1_js_ms[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]] + self.bs.r_js_ms[is_ground, :] * gc_n.theta_dsh_srf_t_js_ms_n
-
-    theta_s_js_npls = (
-        self.bs.phi_a0_js[is_ground, :] * h_i_js * self.weather.theta_o_ns_plus[n + 1]
-        + self.bs.phi_t0_js[is_ground, :] * self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
-        + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
-        + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
-    ) / (1.0 + self.bs.phi_a0_js[is_ground, :] * h_i_js)
-
-    q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
-
-    return GroundConditions(
-        theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_npls,
-        theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_npls,
-        q_srf_js_n=q_srf_js_n,
-    )
-
 
 # region equation 4 (pre calculation)
-
-def get_f_wsc_js_ns(f_ax_js_js, f_crx_js_ns):
-    """
-
-    Args:
-        f_ax_js_js: 係数 f_{AX}, -, [j, j]
-        f_crx_js_ns: 係数 f_{CRX,n}, degree C, [j, n]
-
-    Returns:
-        係数 f_{WSC,n}, degree C, [j, n]
-
-    Notes:
-        式(4.1)
-    """
-
-    return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
-
-
-def get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
-    """
-
-    Args:
-        f_ax_js_js: 係数 f_AX, -, [j, j]
-        f_fia_js_is: 係数 f_FIA, -, [j, i]
-
-    Returns:
-        係数 f_WSR, -, [j, i]
-
-    Notes:
-        式(4.2)
-    """
-
-    return np.linalg.solve(f_ax_js_js, f_fia_js_is)
-
 
 def get_v_vent_mec_is_ns(v_vent_mec_general_is, v_vent_mec_local_is_ns):
     """
@@ -1724,24 +1676,6 @@ def get_f_brl_is_is_n(a_s_js, beta_is_n, f_wsb_js_is_n_pls, h_s_c_js, p_is_js):
     """
 
     return np.dot(p_is_js, f_wsb_js_is_n_pls * h_s_c_js * a_s_js) + v_diag(beta_is_n)
-
-
-def get_f_wsb_js_is_n_pls(f_flb_js_is_n_pls, f_ax_js_js):
-    """
-
-    Args:
-        f_flb_js_is_n_pls: ステップ n+1 における係数 f_FLB, K/W, [j, i]
-        f_ax_js_js: 係数 f_AX, -, [j, j]
-
-    Returns:
-        ステップ n+1 における係数 f_WSB, K/W, [j, i]
-
-    Notes:
-        式(2.11)
-
-    """
-
-    return np.linalg.solve(f_ax_js_js, f_flb_js_is_n_pls)
 
 
 def get_beta_is_n(

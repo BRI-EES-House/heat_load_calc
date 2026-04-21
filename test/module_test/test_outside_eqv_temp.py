@@ -8,7 +8,8 @@ from heat_load_calc.interval import EInterval, Interval
 from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading, SolarShadingSimple
 from heat_load_calc import inclined_surface_solar_radiation
-from heat_load_calc.window import Window, GlassType
+from heat_load_calc.window import Window
+from heat_load_calc.tenum import EGlassType
 
 
 class TestOutsideEqvTemp(unittest.TestCase):
@@ -77,7 +78,7 @@ class TestOutsideEqvTemp(unittest.TestCase):
 
     def test_get_theta_o_eqv_j_ns_for_external_transparent_part(self):
         
-        wdw = Window(u_w_std_j=3.0, eta_w_std_j=0.8, t_glz_j=GlassType.SINGLE)        
+        wdw = Window(u_w_std_j=3.0, eta_w_std_j=0.8, t_glz_j=EGlassType.SINGLE)        
         result = oet.get_theta_o_eqv_j_ns_for_external_transparent_part(
             t_drct_j=Direction.SE,
             eps_r_o_j=0.9,

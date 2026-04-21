@@ -11,30 +11,79 @@ from heat_load_calc.direction import Direction
 from heat_load_calc.solar_shading import SolarShading
 from heat_load_calc import outside_eqv_temp
 from heat_load_calc import transmission_solar_radiation
-from heat_load_calc import window
 from heat_load_calc.window import Window
-from heat_load_calc.tenum import EShapeFactorMethod
+from heat_load_calc.tenum import EShapeFactorMethod, EGlassType
+from heat_load_calc.input_models.input_boundary import (
+    InputBoundary,
+    InputBoundaryExternalGeneralPart,
+    InputBoundaryExternalTransparentPart,
+    InputBoundaryExternalOpaquePart,
+    InputBoundaryGround,
+    InputBoundaryInternal
+)
+from heat_load_calc.input_models.input_solar_shading_part import (
+    InputSolarShadingPart,
+    InputSolarShadingPartSimple,
+    InputSolarShadingPartDetail,
+    InputSolarShadingPartNot
+)
+from heat_load_calc.boundary_component import (
+    BoundaryComponentResponseFactor,
+    BoundaryComponents
+)
+
+from heat_load_calc.tenum import EBoundaryType
 
 
-class BoundaryType(Enum):
-    """
-    境界の種類
-    """
+from typing import Protocol, runtime_checkable
 
-    # 'internal': 間仕切り
-    INTERNAL = 'internal'
+@runtime_checkable
+class TempDifCoefHolder(Protocol):
+    temp_dif_coef: float
 
-    # 'external_general_part': 外皮_一般部位
-    EXTERNAL_GENERAL_PART = 'external_general_part'
+@runtime_checkable
+class RearSurfaceBoundaryIdHolder(Protocol):
+    rear_surface_boundary_id: int
 
-    # 'external_transparent_part': 外皮_透明な開口部
-    EXTERNAL_TRANSPARENT_PART = 'external_transparent_part'
+@runtime_checkable
+class IsSunStrikedOutsideHolder(Protocol):
+    is_sun_striked_outside: bool
 
-    # 'external_opaque_part': 外皮_不透明な開口部
-    EXTERNAL_OPAQUE_PART = 'external_opaque_part'
+@runtime_checkable
+class DirectionHolder(Protocol):
+    direction: Direction
 
-    # 'ground': 地盤
-    GROUND = 'ground'
+@runtime_checkable
+class SolarShadingPartHolder(Protocol):
+    solar_shading_part: InputSolarShadingPart
+
+@runtime_checkable
+class OutsideSolarAbsorptionHolder(Protocol):
+    outside_solar_absorption: float
+
+@runtime_checkable
+class OutsideHeatTransferResistanceHolder(Protocol):
+    outside_heat_transfer_resistance: float
+
+@runtime_checkable
+class OutsideEmissivityHolder(Protocol):
+    outside_emissivity: float
+
+@runtime_checkable
+class UValueHolder(Protocol):
+    u_value: float
+
+@runtime_checkable
+class EtaValueHolder(Protocol):
+    eta_value: float
+
+@runtime_checkable
+class GlassAreaRatioHolder(Protocol):
+    glass_area_ratio: float
+
+@runtime_checkable
+class IncidentAngleCharacteristics(Protocol):
+    incident_angle_characteristics: EGlassType
 
 
 @dataclass
@@ -50,7 +99,7 @@ class Boundary:
     sub_name: str
 
     # 境界の種類
-    t_b: BoundaryType
+    t_b: EBoundaryType
 
     # 面積, m2
     a_s: float
@@ -79,15 +128,540 @@ class Boundary:
     # 裏面温度に室の空気温度が与える影響
     k_s_r: float
 
+    # boundary component
+    bcomp: BoundaryComponentResponseFactor
 
+    @staticmethod
+    def _get_k_eo_j(ipt_boundary: InputBoundary):
+
+        if (
+            isinstance(ipt_boundary, InputBoundaryExternalGeneralPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalTransparentPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+        ):
+            if not isinstance(ipt_boundary, TempDifCoefHolder):
+                raise Exception()
+            return ipt_boundary.temp_dif_coef
+
+        elif isinstance(ipt_boundary, InputBoundaryGround):
+            return 1.0
+
+        elif isinstance(ipt_boundary, InputBoundaryInternal):
+            return 0.0
+
+        else:
+            raise Exception()
+
+    @staticmethod
+    def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: int) -> int:
+        """Get the boundary index matched to the specify id.
+
+        Args:
+            id_js: list of the indices of boundaries
+            rear_surface_boundary_id: specified boundary id as rear surface
+            id: id of this boundary
+
+        Raises:
+            ValueError: There is no boundary index corresponding to the specified index.
+            ValueError: Multiple indices were found corresponding to the specified index.
+
+        Returns:
+            the boundary index
+        """
+
+        matched_indices = [index for (index, id_j) in enumerate(id_js) if id_j == rear_surface_boundary_id]
+
+        if len(matched_indices) == 0:
+            raise ValueError("境界(ID=" + str(id) + ")(間仕切りの場合)の裏面のIDとして指定する boundary ID 存在しませんでした。")
+        if len(matched_indices) > 1:
+            raise ValueError("境界(ID=" + str(id) + ")(間仕切りの場合)の裏面のIDとして指定する boundary ID が複数存在しました。")
+        
+        return matched_indices[0]
+
+    @classmethod
+    def _get_j_rear_j(cls, ipt_boundary: InputBoundary, id_js: np.ndarray):
+
+        if isinstance(ipt_boundary, RearSurfaceBoundaryIdHolder):
+            rear_surface_boundary_id = ipt_boundary.rear_surface_boundary_id
+            return cls._get_boundary_index(
+                id_js=id_js,
+                rear_surface_boundary_id=rear_surface_boundary_id,
+                id=ipt_boundary.id
+            )
+
+        else:
+            return None
+
+    @staticmethod
+    def get_window_j(ipt_boundary: InputBoundaryExternalTransparentPart) -> Window:
+
+        # standard heat transmittance coefficient (u value) of boundary j, W / ( m2 K )
+        u_w_std_j = ipt_boundary.u_value
+
+        # standard solar gain coefficient (eta value) of boundary j, -
+        eta_w_std_j = ipt_boundary.eta_value
+
+        # grazing type of boundary j
+        t_glz_j = ipt_boundary.incident_angle_characteristics
+
+        # grazing area ratio of boundary j, -
+        r_a_w_g_j = ipt_boundary.glass_area_ratio
+
+        return Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j)
+
+    @staticmethod
+    def _get_theta_o_eqv_j_ns(w: Weather, ipt_boundary: InputBoundary) -> np.ndarray:
+        """Calculate the equivalent outside temperature of boundary j at step n.
+
+        Args:
+            w: weather class
+            ipt_boundary: InputBoundary class
+
+        Returns:
+            equivalent outside temperature of boundary j at step n, degree C, [N+1]
+        """
+        
+        if isinstance(ipt_boundary, InputBoundaryInternal):
+        
+            return outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=w)
+
+        elif (
+            isinstance(ipt_boundary, InputBoundaryExternalGeneralPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+        ):
+            
+            if ipt_boundary.is_sun_striked_outside:
+
+                t_drct_j = ipt_boundary.direction
+
+                a_sol_j = ipt_boundary.outside_solar_absorption
+
+                eps_r_o_j = ipt_boundary.outside_emissivity
+
+                r_s_o_j = ipt_boundary.outside_heat_transfer_resistance
+
+                ssp_j = SolarShading.create(direction=t_drct_j, input_solar_shading_part=ipt_boundary.solar_shading_part)
+
+                return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
+                    t_drct_j=t_drct_j, a_sol_j=a_sol_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, w=w
+                )
+
+            else:
+
+                return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)  
+
+        elif isinstance(ipt_boundary, InputBoundaryExternalTransparentPart):
+
+            if ipt_boundary.is_sun_striked_outside:
+
+                t_drct_j = ipt_boundary.direction
+
+                eps_r_o_j = ipt_boundary.outside_emissivity
+
+                r_s_o_j = ipt_boundary.outside_heat_transfer_resistance
+
+                # standard heat transmittance coefficient (u value) of boundary j, W / ( m2 K )
+                u_w_std_j = ipt_boundary.u_value
+
+                window_j = Boundary.get_window_j(ipt_boundary=ipt_boundary)
+
+                ssp_j = SolarShading.create(direction=t_drct_j, input_solar_shading_part=ipt_boundary.solar_shading_part)
+
+                return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_transparent_part(
+                    t_drct_j=t_drct_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ssp_j=ssp_j, window_j=window_j, w=w
+                )
+
+            else:
+
+                return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
+
+        elif isinstance(ipt_boundary, InputBoundaryGround):
+
+            return outside_eqv_temp.get_theta_o_eqv_j_ns_for_ground(w=w)
+
+        else:
+
+            raise Exception()
+
+    @staticmethod
+    def _get_q_trs_sol_j_ns(w: Weather, ipt_boundary: InputBoundary) -> np.ndarray:
+        """Calculate the transmitted solar radiation of boundary j at step n
+
+        Args:
+            w: weather class
+            ipt_boundary: InputBoundary class
+
+        Returns:
+            transmitted solar radiation of boundary j at step n, W, [N+1]
+        """
+
+        if (
+            isinstance(ipt_boundary, InputBoundaryInternal)
+            or isinstance(ipt_boundary, InputBoundaryExternalGeneralPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+            or isinstance(ipt_boundary, InputBoundaryGround)
+        ):
+
+            return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
+
+        elif isinstance(ipt_boundary, InputBoundaryExternalTransparentPart):
+
+            if ipt_boundary.is_sun_striked_outside:
+
+                t_drct_j = ipt_boundary.direction
+
+                # surface area of boundary j/ 面積, m2
+                a_s_j = ipt_boundary.area
+
+                # solar shading of boundary j / 日よけ        
+                #ssp_j = _read_ssp(ipt_boundary=ipt_boundary)
+                ssp_j = SolarShading.create(direction=t_drct_j, input_solar_shading_part=ipt_boundary.solar_shading_part)
+
+                window_j = Boundary.get_window_j(ipt_boundary=ipt_boundary)
+
+                return transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
+                    t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j, w=w
+                )
+        
+            else:
+
+                return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
+        
+        else:
+
+            raise Exception()
+
+    @staticmethod
+    def _get_boundary_component(
+            ipt_boundary: InputBoundary,
+            h_s_c_js: np.ndarray,
+            h_s_r_js: np.ndarray,
+            id_js: np.ndarray
+        ) -> BoundaryComponentResponseFactor:
+        """Get response factor of boundary j.
+
+        Args:
+            ipt_boundary:
+            h_s_c_js: convective heat transfer coefficient of inside surface of boundary j, W/m2K, [J, 1]
+            h_s_r_js: radiative heat transfer coefficient of inside surface of boundary j, W/m2K, [J, 1]
+            id_js:
+
+        Returns:
+            response factor class
+        """
+
+        if isinstance(ipt_boundary, InputBoundaryInternal):
+
+            c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
+            r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
+
+            j_rear_j = Boundary._get_j_rear_j(ipt_boundary=ipt_boundary, id_js=id_js)
+            h_s_c_rear_j = h_s_c_js[j_rear_j, 0]
+            h_s_r_rear_j = h_s_r_js[j_rear_j, 0]
+
+            r_rear_j = 1.0 / (h_s_c_rear_j + h_s_r_rear_j)
+
+            bcomp = BoundaryComponentResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_rear_j)
+
+            return bcomp
+
+        elif isinstance(ipt_boundary, InputBoundaryExternalGeneralPart):
+
+            c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
+            r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
+
+            r_s_o_j = ipt_boundary.outside_heat_transfer_resistance
+
+            bcomp = BoundaryComponentResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
+
+            return bcomp
+
+        elif (
+            isinstance(ipt_boundary, InputBoundaryExternalTransparentPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+        ):
+
+            r_i_std_j = ipt_boundary.inside_heat_transfer_resistance
+
+            u_w_std_j = ipt_boundary.u_value
+
+            bcomp = BoundaryComponentResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
+
+            return bcomp
+
+        elif isinstance(ipt_boundary, InputBoundaryGround):
+
+            c_j_ls = np.array([ipt_layer.thermal_capacity for ipt_layer in ipt_boundary.ipt_layers])
+            r_j_ls = np.array([ipt_layer.thermal_resistance for ipt_layer in ipt_boundary.ipt_layers])
+
+            bcomp = BoundaryComponentResponseFactor.create_for_unsteady_ground(cs=c_j_ls, rs=r_j_ls)
+
+            return bcomp
+
+        else:
+
+            raise KeyError()
+
+    @classmethod
+    def _get_k_ei_js_j(cls, id_js: np.ndarray, ipt_boundary: InputBoundary) -> np.ndarray:
+
+        k_ei_js_j = np.zeros_like(id_js, dtype=float).flatten()
+
+        if (
+            isinstance(ipt_boundary, InputBoundaryExternalGeneralPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalTransparentPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+            or isinstance(ipt_boundary, InputBoundaryGround)
+        ):
+
+            pass
+
+        elif isinstance(ipt_boundary, InputBoundaryInternal):
+
+            j_rear_j = cls._get_j_rear_j(ipt_boundary=ipt_boundary, id_js=id_js)
+
+            # 室内壁の場合にk_ei_jsを登録する。
+            k_ei_js_j[j_rear_j] = 1.0
+
+        else:
+            raise Exception()
+        
+        return k_ei_js_j
+
+    @staticmethod
+    def _get_k_s_r_j(ipt_boundary: InputBoundary) -> float:
+        """Get the coefficient representing the effect of the room air temperature to the rear temperature of boundary j.
+
+        Args:
+            ipt_boundary: InputBoundary class
+
+        Returns:
+            coefficient representing the effect of room air temperature to rear temperature of boundary j
+        """
+
+        if (
+            isinstance(ipt_boundary, InputBoundaryExternalGeneralPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalTransparentPart)
+            or isinstance(ipt_boundary, InputBoundaryExternalOpaquePart)
+        ):
+            
+            #if k_eo_j is None:
+            #    raise Exception("k_eo_j should be defined when boundary type is external opaque part, external transparent part, or external general part.")
+            
+            if not isinstance(ipt_boundary, TempDifCoefHolder):
+                raise Exception()
+            
+            # TODO: なぜここはRound?
+            return round(1.0 - ipt_boundary.temp_dif_coef, 2)
+
+            #return round(1.0 - k_eo_j, 2)
+
+        elif (
+            isinstance(ipt_boundary, InputBoundaryInternal)
+            or isinstance(ipt_boundary, InputBoundaryGround)
+        ):
+            return 0.0
+
+        else:
+            raise Exception()
+
+    @classmethod
+    def get_boundary(cls, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, id_js: np.ndarray, ipt_boundary: InputBoundary):
+        """
+
+        Args:
+            h_s_c_js: 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
+            h_s_r_js: 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
+            w: Weather クラス
+            id_js: id of boundaries, [J]
+            ipt_boundary: InputBoundary class
+
+        Returns:
+            Boundary クラス
+        """
+
+        # ID of boundary j
+        id_j = ipt_boundary.id
+
+        # name of boundary j / 名前
+        name_j = ipt_boundary.name
+
+        # sub name of boundary j / 副名称
+        sub_name_j = ipt_boundary.sub_name
+
+        # type of boundary j / 境界の種類
+        t_b_j = ipt_boundary.boundary_type
+
+        # surface area of boundary j/ 面積, m2
+        a_s_j = ipt_boundary.area
+
+        # temperature difference coefficient of boundary j / 温度差係数
+        k_eo_j = cls._get_k_eo_j(ipt_boundary=ipt_boundary)
+
+        # is inside solar radiation absorbed of boundary j / 室内侵入日射吸収の有無 (True:吸収する/False:吸収しない)
+        b_sol_abs_j = ipt_boundary.is_solar_absorbed_inside
+
+        # is boundary j floor / 床か否か(True:床/False:床以外)
+        b_floor_j = ipt_boundary.is_floor
+
+        # equivalent outside temperature of boundary i at step n, degree C, [N+1]
+        theta_o_eqv_j_nspls = cls._get_theta_o_eqv_j_ns(w=w, ipt_boundary=ipt_boundary)
+
+        # transmitted solar radiation of boundary j at step n, W, [N+1]
+        q_trs_sol_j_nspls = cls._get_q_trs_sol_j_ns(w=w, ipt_boundary=ipt_boundary)
+
+        # boundary component
+        bcomp = cls._get_boundary_component(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js)
+
+        # response factor of boundary j
+        rf = bcomp.rf
+        
+        # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
+        # 裏面温度に他の境界 j の等価室温が与える影響, [J]
+        k_ei_js_j = cls._get_k_ei_js_j(id_js=id_js, ipt_boundary=ipt_boundary)
+
+        # coefficient representing the effect of room air temperature to the rear temperature of boundary j / 裏面温度に室の空気温度が与える影響
+        k_s_r_j = cls._get_k_s_r_j(ipt_boundary=ipt_boundary)
+
+        return Boundary(
+            id=id_j,
+            name=name_j,
+            sub_name=sub_name_j,
+            t_b=t_b_j,
+            a_s=a_s_j,
+            k_eo=k_eo_j,
+            b_floor=b_floor_j,
+            b_sol_abs=b_sol_abs_j,
+            theta_o_eqv_nspls=theta_o_eqv_j_nspls,
+            q_trs_sol_nplus=q_trs_sol_j_nspls,
+            rf=rf,
+            k_ei_js=k_ei_js_j,
+            k_s_r=k_s_r_j,
+            bcomp=bcomp
+        )
+
+
+@dataclass
 class Boundaries:
 
-    def __init__(self, id_r_is: np.ndarray, ds: List[Dict], w: Weather, rad_method: EShapeFactorMethod):
+    # number of boundaries
+    n_b: int
+
+    # number_of_boundaries of ground
+    n_ground: int
+
+    # IDs, [J, 1]
+    id_js: np.ndarray
+
+    # name, [J, 1]
+    name_js: np.ndarray
+
+    # subname, [J, 1]
+    sub_name_js: np.ndarray
+
+    # connected room IDs, [J, 1]
+    connected_room_id_js: np.ndarray
+
+    # coefficient of relation between room i and boundary j
+    # example　(vertical axis = room, horizontal axis = boundary)
+    #  [[p_0_0 ... ... p_0_j]
+    #   [ ...  ... ...  ... ]
+    #   [p_i_0 ... ... p_i_j]]
+    p_is_js: np.ndarray
+
+    # p_is_js.T
+    p_js_is: np.ndarray
+
+    # is the boundary floor ?, [J, 1]
+    b_floor_js: np.ndarray
+
+    # is the boundary ground ?, [J, 1]
+    b_ground_js: np.ndarray
+
+    # coefficient of effects
+    # of equivallent temperature of other boundary
+    # to rear surface temperature of the given boundary
+    # [J, J]
+    k_ei_js_js: np.ndarray
+
+    # coefficient of effects
+    # of outdoor air temperature
+    # to rear surface temperature of the given boundary
+    # (temperature different coefficient)
+    # [J, 1] 
+    k_eo_js: np.ndarray
+
+    # coefficient of effects
+    # of room temperature
+    # to rear surface temperature of the given boundary
+    # [J, I]
+    k_s_r_js_is: np.ndarray
+
+    # Wheter does the surface of boundary absorb solar radiation ?
+    b_s_sol_abs_js: np.ndarray
+
+    # radiative heat transfer coefficient of inside surface, W/m2K, [J, 1]
+    h_s_r_js: np.ndarray
+
+    # convective heat transfer coefficient of inside surface, W/m2K, [J, 1]
+    h_s_c_js: np.ndarray
+
+    # thermal transfer coefficient, W/m2K, [J, 1]
+    # the value calculated in this simulation is used as thermal resistance of surface
+    u_js: np.ndarray
+
+    # area, m2, [J, 1]
+    a_s_js: np.ndarray
+
+    # long wave emissivity, -, [J, 1]
+    eps_r_i_js: np.ndarray
+
+    # initial term of heat absorption response factor, m2K/W, [J, 1]
+    phi_a0_js: np.ndarray
+
+    # initial term of m th component of heat absorption response factor
+    # with common ratio method per term
+    # m2K/W, [J, M]
+    phi_a1_js_ms: np.ndarray
+
+    # initial term of heat transmission response factor, -, [J, 1]
+    phi_t0_js: np.ndarray
+
+    # initial term of m th component of heat transmission response factor
+    # with common ratio method per term
+    # -, [J, M]
+    phi_t1_js_ms: np.ndarray
+
+    # common ratio of the m th term, [J, M]
+    r_js_ms: np.ndarray
+
+    # equivalent outdoor temperature at step n+1, deg.C, [J, N+1]
+    theta_o_eqv_js_nspls: np.ndarray
+
+    # transmitted solar heat gain at step n+1, W, [J, N+1]
+    q_trs_sol_js_nspls: np.ndarray
+
+    # shape factor for microsphier in the room, [I, J]
+    f_mrt_is_js: np.ndarray
+
+    # coeeficient f_ax, -, [J, J]
+    f_ax_js_js: np.ndarray
+
+    # coefficient f_wsr, -, [J, I]
+    f_wsr_js_is: np.ndarray
+
+    # boundary components class
+    bcomps: BoundaryComponents
+
+    # boundary components class for ground
+    bcomps_ground: BoundaryComponents
+
+    @classmethod
+    def create(cls, id_r_is: np.ndarray, w: Weather, rad_method: EShapeFactorMethod, ipt_boundaries: list[InputBoundary]):
         """
 
         Args:
             id_r_is: room id, [I, 1]
-            ds: 境界に関する辞書
             w: Weather クラス
         Notes:
             本来であれば Boundaries クラスにおいて境界に関する入力用辞書から読み込みを境界個別に行う。
@@ -100,34 +674,36 @@ class Boundaries:
         """
 
         # number of boundaries
-        n_b = len(ds)
+        n_b = len(ipt_boundaries)
 
         # boundary id, [J]
-        id_js = np.array([int(d['id']) for d in ds]).reshape(-1, 1)
+        id_js = np.array([ipt_boundary.id for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # connected foom id, [J, 1]
-        connected_room_id_js = np.array([b['connected_room_id'] for b in ds]).reshape(-1, 1)
+        connected_room_id_js = np.array([ipt_boundary.connected_room_id for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [I, J]
         p_is_js = _get_p_is_js(id_r_is=id_r_is, connected_room_id_js=connected_room_id_js)
 
+        p_js_is = p_is_js.T
+
         # surface area of boundary j / 境界jの面積, m2, [J, 1]
-        a_s_js = np.array([_read_a_s(d=d) for d in ds]).reshape(-1, 1)
+        a_s_js = np.array([ipt_boundary.area for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # indoor surface emissivity of boundary j / 境界jの室内側長波長放射率
-        eps_r_i_js = np.array([_read_eps_s(d=d) for d in ds]).reshape(-1, 1)
+        eps_r_i_js = np.array([ipt_boundary.inside_emissivity for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # indoor surface radiant heat transfer coefficient of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
         h_s_r_js = shape_factor.get_h_s_r_js(a_s_js=a_s_js, p_is_js=p_is_js, eps_r_i_js=eps_r_i_js, method=rad_method)
 
         # indoor surface convection heat transfer coefficient of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-        h_s_c_js = np.array([float(b['h_c']) for b in ds]).reshape(-1, 1)
+        h_s_c_js = np.array([ipt_boundary.h_c for ipt_boundary in ipt_boundaries]).reshape(-1, 1)
 
         # boundary j / 境界 j, [J]
-        bss = [self._get_boundary(d=d, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js) for d in ds]
+        bss = [Boundary.get_boundary(h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js, ipt_boundary=ipt_boundary) for ipt_boundary in ipt_boundaries]
 
         # GOUND の数
-        n_ground =sum(bs.t_b == BoundaryType.GROUND for bs in bss)
+        n_ground =sum(bs.t_b == EBoundaryType.GROUND for bs in bss)
 
         # id of boundary j, [J, 1]
         id_js = np.array([bs.id for bs in bss]).reshape(-1, 1)
@@ -142,7 +718,7 @@ class Boundaries:
         b_floor_js = np.array([bs.b_floor for bs in bss]).reshape(-1, 1)
 
         # is the boundary j ground ?, [J, 1]
-        b_ground_js = np.array([bs.t_b == BoundaryType.GROUND for bs in bss]).reshape(-1, 1)
+        b_ground_js = np.array([bs.t_b == EBoundaryType.GROUND for bs in bss]).reshape(-1, 1)
 
         # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
         # 裏面温度に他の境界 j の等価室温が与える影響, [J, J]
@@ -159,17 +735,21 @@ class Boundaries:
         b_sol_abs_js = np.array([bs.b_sol_abs for bs in bss]).reshape(-1, 1)
 
         # the resistance from the inside surface of boundary j to the outside air, m2K/W, [J, 1]
-        r_total_js = np.array([bs.rf.r_total for bs in bss]).reshape(-1, 1)
+        # r_total_js = np.array([bs.rf.r_total for bs in bss]).reshape(-1, 1)
+        r_total_js = np.array([bs.bcomp.r_total for bs in bss]).reshape(-1, 1)
 
         # thermal transmittance coefficient of boundary j, W/m2K, [J, 1]
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
 
         # response factor of boundary j, [J, 1] or [J, M]
-        phi_a0_js = np.array([bs.rf.rfa0 for bs in bss]).reshape(-1, 1)
-        phi_a1_js_ms = np.array([bs.rf.rfa1 for bs in bss])
-        phi_t0_js = np.array([bs.rf.rft0 for bs in bss]).reshape(-1, 1)
-        phi_t1_js_ms = np.array([bs.rf.rft1 for bs in bss])
-        r_js_ms = np.array([bs.rf.row for bs in bss])
+        bcomps = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss])
+        phi_a0_js = bcomps.phi_a0_js
+        phi_a1_js_ms = bcomps.phi_a1_js_ms
+        phi_t0_js = bcomps.phi_t0_js
+        phi_t1_js_ms = bcomps.phi_t1_js_ms
+        r_js_ms = bcomps.r_js_ms
+
+        bcomps_ground = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss if bs.t_b == EBoundaryType.GROUND])
 
         # outside equivalent temperature of boundary j, degree C, [J, N+1]
         theta_o_eqv_js_nspls = np.array([bs.theta_o_eqv_nspls for bs in bss])
@@ -177,324 +757,64 @@ class Boundaries:
         # transmitted solar radiation of boundary j, W, [J, N+1]
         q_trs_sol_js_nspls = np.array([bs.q_trs_sol_nplus for bs in bss])
 
-        self._n_b = n_b
-        self._connected_room_id_js = connected_room_id_js
-        self._p_is_js = p_is_js
-        self._p_js_is = p_is_js.T
-        self._a_s_js = a_s_js
-        self._eps_r_i_js = eps_r_i_js
-        self._h_s_r_js = h_s_r_js
-        self._h_s_c_js = h_s_c_js
-        self._n_ground = n_ground
-        self._id_js = id_js
-        self._name_js = name_js
-        self._sub_name_js = sub_name_js
-        self._b_floor_js = b_floor_js
-        self._b_ground_js = b_ground_js
-        self._k_ei_js_js = k_ei_js_js
-        self._k_eo_js = k_eo_js
-        self._k_s_r_js_is = k_s_r_js_is
-        self._b_s_sol_abs_js = b_sol_abs_js
-        self._u_js = u_js
-        self._phi_a0_js = phi_a0_js
-        self._phi_a1_js_ms = phi_a1_js_ms
-        self._phi_t0_js = phi_t0_js
-        self._phi_t1_js_ms = phi_t1_js_ms
-        self._r_js_ms = r_js_ms
-        self._theta_o_eqv_js_nspls = theta_o_eqv_js_nspls
-        self._q_trs_sol_js_nspls = q_trs_sol_js_nspls
+        # shape factor for microsphier in the room, [I, J]
+        f_mrt_is_js = shape_factor.get_f_mrt_is_js(a_s_js=a_s_js, h_s_r_js=h_s_r_js, p_is_js=p_is_js)
 
-    @staticmethod
-    def _get_boundary(d: Dict, h_s_c_js: np.ndarray, h_s_r_js: np.ndarray, w: Weather, id_js: np.ndarray) -> Boundary:
-        """
-
-        Args:
-            d: dictionary of boundary j
-            h_s_c_js: 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]
-            h_s_r_js: 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]
-            w: Weather クラス
-            id_js: id of boundaries, [J]
-
-        Returns:
-            Boundary クラス
-        """
-
-        # ID of boundary j
-        id_j = int(d['id'])
-
-        # name of boundary j / 名前
-        name_j = str(d['name'])
-
-        # sub name of boundary j / 副名称
-        sub_name_j = str(d['sub_name'])
-
-        # type of boundary j / 境界の種類
-        t_b_j = BoundaryType(d['boundary_type'])
-
-        # surface area of boundary j/ 面積, m2
-        a_s_j = _read_a_s(d=d)
-
-        # temperature difference coefficient of boundary j / 温度差係数
-        k_eo_j = _read_k_eo(d=d, id=id_j, t_b=t_b_j)
-
-        # rear boundary index of boundary j
-        j_rear_j = _read_j_rear(b=d, id=id_j, t_b=t_b_j, id_js=id_js)
-
-        # is inside solar radiation absorbed of boundary j / 室内侵入日射吸収の有無 (True:吸収する/False:吸収しない)
-        b_sol_abs_j = bool(d['is_solar_absorbed_inside'])
-
-        # is boundary j floor / 床か否か(True:床/False:床以外)
-        b_floor_j = bool(d['is_floor'])
-
-        # is the sun striked to outside of boundary j / 外気側に日射が当たるか否か
-        b_sun_strkd_out_j = _read_b_sun_strkd_out(d=d, id=id_j, t_b=t_b_j)
-        
-        # direction of boundary j / 方位
-        t_drct_j = _read_t_drct(d=d, b_sun_strkd_out=b_sun_strkd_out_j)
-        
-        # solar shading of boundary j / 日よけ        
-        ssp_j = _read_ssp(ssp_dict=d['solar_shading_part'], b_sun_strkd_out=b_sun_strkd_out_j, t_drct=t_drct_j)
-
-        # solar absorption ratio at outside surface of boundary j / 境界jの室外側表面日射吸収率, -
-        a_sol_j = _read_a_sol(d=d, id=id_j, t_b=t_b_j)
-
-        # outside heat transfer resistance of boundary j / 室外側熱伝達抵抗, m2 K / W
-        r_s_o_j = _read_r_s_o(d=d, id=id_j, t_b=t_b_j)
-
-        # long wavelength emissivity at outside surface of boundary j, -
-        eps_r_o_j = _read_eps_r_o(d=d, id=id_j, t_b=t_b_j)
-
-        # standard heat transmittance coefficient (u value) of boundary j, W / ( m2 K )
-        u_w_std_j = _get_u_std(d=d, id=id_j, t_b=t_b_j)
-
-        # standard solar gain coefficient (eta value) of boundary j, -
-        eta_w_std_j = _read_eta_std(d=d, id=id_j, t_b=t_b_j)
-
-        # grazing area ratio of boundary j, -
-        r_a_w_g_j = _read_r_a_w_g(d=d, id=id_j, t_b=t_b_j)
-
-        # grazing type of boundary j/ グレージングの種類
-        t_glz_j = _read_t_glz(d=d, id=id_j, t_b=t_b_j)
-
-        # window class of boundary j
-        window_j = _get_window_class_j(t_b_j=t_b_j, u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j)
-
-        # equivalent outside temperature of boundary i at step n, degree C, [N+1]
-        theta_o_eqv_j_nspls = _get_theta_o_eqv_j_ns(t_b_j=t_b_j, w=w, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_sol_j=a_sol_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, u_w_std_j=u_w_std_j, window_j=window_j)
-
-        # transmitted solar radiation of boundary j at step n, W, [N+1]
-        q_trs_sol_j_nspls = _get_q_trs_sol_j_ns(t_b_j=t_b_j, w=w, b_sun_strkd_out_j=b_sun_strkd_out_j, t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j)
-
-        # convective heat transfer coefficient of the rear surface of boundary j, W/m2K
-        h_s_c_rear_j = float(h_s_c_js[j_rear_j, 0]) if t_b_j == BoundaryType.INTERNAL else None
-
-        # radiative heat transfer coefficient of the rear surface of boundary j, W/m2K
-        h_s_r_rear_j = float(h_s_r_js[j_rear_j, 0]) if t_b_j == BoundaryType.INTERNAL else None
-
-        # response factor of boundary j
-        rf = _get_response_factor(d=d, h_s_c_rear_j=h_s_c_rear_j, h_s_r_rear_j=h_s_r_rear_j, id_j=id_j, t_b_j=t_b_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j)
-        
-        # coefficient representing the effect of equivalent room temperature of other boundary j to the rear temperature of boundary j
-        # 裏面温度に他の境界 j の等価室温が与える影響, [J]
-        k_ei_js_j = _get_k_ei_js_j(id_js=id_js, t_b_j=t_b_j, j_rear_j=j_rear_j)
-
-        # coefficient representing the effect of room air temperature to the rear temperature of boundary j / 裏面温度に室の空気温度が与える影響
-        k_s_r_j = _get_k_s_r_j(t_b_j=t_b_j, k_eo_j=k_eo_j)
-
-
-        return Boundary(
-            id=id_j,
-            name=name_j,
-            sub_name=sub_name_j,
-            t_b=t_b_j,
-            a_s=a_s_j,
-            k_eo=k_eo_j,
-            b_floor=b_floor_j,
-            b_sol_abs=b_sol_abs_j,
-            theta_o_eqv_nspls=theta_o_eqv_j_nspls,
-            q_trs_sol_nplus=q_trs_sol_j_nspls,
-            rf=rf,
-            k_ei_js=k_ei_js_j,
-            k_s_r=k_s_r_j
-        )
-
-
-    @property
-    def n_b(self) -> int:
-        """number of boundaries / 境界の数"""
-        return self._n_b
-
-    @property
-    def n_ground(self) -> int:
-        """nomber of boundaries for ground / 地盤の数"""
-        return self._n_ground
-
-    @property
-    def id_js(self) -> np.ndarray:
-        """ID of boundary j / 境界jのID, [J, 1]"""
-        return self._id_js
-
-    @property
-    def name_js(self) -> np.ndarray:
-        """name of boundary j / 境界jの名前, [J, 1]"""
-        return self._name_js
-
-    @property
-    def sub_name_js(self) -> np.ndarray:
-        """sub name of boundary j / 境界jの名前2, [J, 1]"""
-        return self._sub_name_js
-    
-    @property
-    def connected_room_id_js(self) -> np.ndarray:
-        """connected room id, [J, 1]"""
-        return self._connected_room_id_js
-
-    @property
-    def p_is_js(self) -> np.ndarray:
-        """coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（境界jから室iへの変換）, [i, j]
-        Notes:
-            室iと境界jの関係を表す係数（境界jから室iへの変換）
-            [[p_0_0 ... ... p_0_j]
-             [ ...  ... ...  ... ]
-             [p_i_0 ... ... p_i_j]]
-        """
-        return self._p_is_js
-
-    @property
-    def p_js_is(self) -> np.ndarray:
-        """coefficient of relation between room i and boundary j / 室iと境界jの関係を表す係数（室iから境界jへの変換）
-        Notes:
-            [[p_0_0 ... p_0_i]
-             [ ...  ...  ... ]
-             [ ...  ...  ... ]
-             [p_j_0 ... p_j_i]]
-        """
-        return self._p_js_is
-
-    @property
-    def b_floor_js(self) -> np.ndarray:
-        """is boundary j floor ? / 境界jが床かどうか, [J, 1]"""
-        return self._b_floor_js
-
-    @property
-    def b_ground_js(self) -> np.ndarray:
-        """is boundary j ground ? / 境界jが地盤かどうか, [J, 1]"""
-        return self._b_ground_js
-
-    @property
-    def k_ei_js_js(self) -> np.ndarray:
-        """coefficient of effects of equivallent temperature of other boundary to rear surface temperature of given boundary"""
-        return self._k_ei_js_js
-        
-    @property
-    def k_eo_js(self) -> np.ndarray:
-        """coefficient of effects of outdoor air temperature to rear surface temperature of given boundary j / 境界jの裏面温度に外気温度が与える影響（温度差係数）, [j, 1]"""
-        return self._k_eo_js
-
-    @property
-    def k_s_r_js_is(self) -> np.ndarray:
-        """coefficient of effects of room temperature to rear surface temperature of boundary / 境界jの裏面温度に室温が与える影響, [j, i]"""
-        return self._k_s_r_js_is
-
-    @property
-    def b_s_sol_abs_js(self) -> np.ndarray:
-        """whether does the surface of boundary j absorb solar radiation ? / 境界jの日射吸収の有無, [J, 1]"""
-        return self._b_s_sol_abs_js
-
-    @property
-    def h_s_r_js(self) -> np.ndarray:
-        """radiative heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面放射熱伝達率, W/m2K, [J, 1]"""
-        return self._h_s_r_js
-
-    @property
-    def h_s_c_js(self) -> np.ndarray:
-        """convective heat transfer coefficient of inside surface of boundary j / 境界jの室内側表面対流熱伝達率, W/m2K, [J, 1]"""
-        return self._h_s_c_js
-
-    @property
-    def u_js(self) -> np.ndarray:
-        """境界jにおけるシミュレーションに用いる表面熱伝達抵抗での熱貫流率, W/m2K, [J, 1]"""
-        return self._u_js
-
-    @property
-    def a_s_js(self) -> np.ndarray:
-        """area of boundary j / 境界jの面積, m2, [J, 1]"""
-        return self._a_s_js
-
-    @property
-    def eps_r_i_js(self) -> np.ndarray:
-        """long wave emissivity of boundary j / 境界jの放射率, -, [J, 1]"""
-        return self._eps_r_i_js
-
-    @property
-    def phi_a0_js(self) -> np.ndarray:
-        """境界jの吸熱応答係数の初項, m2K/W, [j, 1]"""
-        return self._phi_a0_js
-
-    @property
-    def phi_a1_js_ms(self) -> np.ndarray:
-        """境界jの項別公比法における項mの吸熱応答係数の第一項 , m2K/W, [j, 12]"""
-        return self._phi_a1_js_ms
-
-    @property
-    def phi_t0_js(self) -> np.ndarray:
-        """境界jの貫流応答係数の初項, [j, 1]"""
-        return self._phi_t0_js
-
-    @property
-    def phi_t1_js_ms(self) -> np.ndarray:
-        """境界jの項別公比法における項mの貫流応答係数の第一項, [j, 12]"""
-        return self._phi_t1_js_ms
-
-    @property
-    def r_js_ms(self) -> np.ndarray:
-        """境界jの項別公比法における項mの公比, [j, 12]"""
-        return self._r_js_ms
-
-    @property
-    def theta_o_eqv_js_nspls(self) -> np.ndarray:
-        """ステップ n の境界 j における相当外気温度, ℃, [J, N+1]"""
-        return self._theta_o_eqv_js_nspls
-
-    # TODO: 一部のテストを通すためだけに、後から上書きできる機能を作成した。将来的には消すこと。
-    def set_theta_o_eqv_js_nspls(self, theta_o_eqv_js_nspls):
-        self._theta_o_eqv_js_nspls = theta_o_eqv_js_nspls
-
-    @property
-    def q_trs_sol_js_nspls(self) -> np.ndarray:
-        """transmitted solar heat gain of boundary j at step n, ステップnにおける境界jの透過日射熱取得, W, [J, N+1]"""
-        return self._q_trs_sol_js_nspls
-
-    def get_f_ax_js_is(self, f_mrt_is_js: np.ndarray) -> np.ndarray:
-
-        return _get_f_ax_js_is(
+        f_ax_js_js = _get_f_ax_js_is(
             f_mrt_is_js=f_mrt_is_js,
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            p_js_is=self._p_js_is,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js
+            h_s_c_js=h_s_c_js,
+            h_s_r_js=h_s_r_js,
+            k_ei_js_js=k_ei_js_js,
+            p_js_is=p_js_is,
+            phi_a0_js=phi_a0_js,
+            phi_t0_js=phi_t0_js
         )
 
-    def get_f_fia_js_is(self) -> np.ndarray:
-        """
+        f_fia_js_is = _get_f_fia_js_is(
+            h_s_c_js=h_s_c_js,
+            h_s_r_js=h_s_r_js,
+            k_ei_js_js=k_ei_js_js,
+            p_js_is=p_js_is,
+            phi_a0_js=phi_a0_js,
+            phi_t0_js=phi_t0_js,
+            k_s_r_js_is=k_s_r_js_is
+        )
 
-        Returns:
-            係数 f_FIA, -, [j, i]
+        f_wsr_js_is = _get_f_wsr_js_is(f_ax_js_js=f_ax_js_js, f_fia_js_is=f_fia_js_is)
 
-        Notes:
-            式(4.4)
-        """
 
-        return _get_f_fia_js_is(
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            p_js_is=self._p_js_is,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js,
-            k_s_r_js_is=self._k_s_r_js_is
+        return Boundaries(
+            n_b=n_b,
+            connected_room_id_js=connected_room_id_js,
+            p_is_js=p_is_js,
+            p_js_is=p_js_is,
+            a_s_js=a_s_js,
+            eps_r_i_js=eps_r_i_js,
+            h_s_r_js=h_s_r_js,
+            h_s_c_js=h_s_c_js,
+            n_ground=n_ground,
+            id_js=id_js,
+            name_js=name_js,
+            sub_name_js=sub_name_js,
+            b_floor_js=b_floor_js,
+            b_ground_js=b_ground_js,
+            k_ei_js_js=k_ei_js_js,
+            k_eo_js=k_eo_js,
+            k_s_r_js_is=k_s_r_js_is,
+            b_s_sol_abs_js=b_sol_abs_js,
+            u_js=u_js,
+            phi_a0_js=phi_a0_js,
+            phi_a1_js_ms=phi_a1_js_ms,
+            phi_t0_js=phi_t0_js,
+            phi_t1_js_ms=phi_t1_js_ms,
+            r_js_ms=r_js_ms,
+            theta_o_eqv_js_nspls=theta_o_eqv_js_nspls,
+            q_trs_sol_js_nspls=q_trs_sol_js_nspls,
+            f_mrt_is_js=f_mrt_is_js,
+            f_ax_js_js=f_ax_js_js,
+            f_wsr_js_is=f_wsr_js_is,
+            bcomps=bcomps,
+            bcomps_ground=bcomps_ground
         )
 
     def get_f_crx_js_ns(self, q_s_sol_js_ns: np.ndarray) -> np.ndarray:
@@ -511,40 +831,40 @@ class Boundaries:
         """
 
         return _get_f_crx_js_ns(
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js,
+            h_s_c_js=self.h_s_c_js,
+            h_s_r_js=self.h_s_r_js,
+            k_ei_js_js=self.k_ei_js_js,
+            phi_a0_js=self.phi_a0_js,
+            phi_t0_js=self.phi_t0_js,
             q_s_sol_js_ns=q_s_sol_js_ns,
-            k_eo_js=self._k_eo_js,
-            theta_o_eqv_js_ns=self._theta_o_eqv_js_nspls
+            k_eo_js=self.k_eo_js,
+            theta_o_eqv_js_ns=self.theta_o_eqv_js_nspls
         )
 
-    def get_f_flb_js_is_n_pls(self, beta_is_n: np.ndarray, f_flr_js_is_n: np.ndarray) -> np.ndarray:
+    def get_f_flb_js_is(self, beta_is: np.ndarray, f_flr_js_is: np.ndarray) -> np.ndarray:
         """
 
         Args:
-            beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-            f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
+            beta_is: 室 i の放射暖冷房設備の対流成分比率, -, [I, 1]
+            f_flr_js_is: 室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [J, i]
 
         Returns:
-            ステップ n+1 における係数 f_FLB, K/W, [j, i]
+            係数 f_FLB, K/W, [J, I]
 
         Notes:
             式(2.12)
 
         """
 
-        return _get_f_flb_js_is_n_pls(
-            a_s_js=self._a_s_js,
-            beta_is_n=beta_is_n,
-            f_flr_js_is_n=f_flr_js_is_n,
-            h_s_c_js=self._h_s_c_js,
-            h_s_r_js=self._h_s_r_js,
-            k_ei_js_js=self._k_ei_js_js,
-            phi_a0_js=self._phi_a0_js,
-            phi_t0_js=self._phi_t0_js
+        return _get_f_flb_js_is(
+            a_s_js=self.a_s_js,
+            beta_is=beta_is,
+            f_flr_js_is=f_flr_js_is,
+            h_s_c_js=self.h_s_c_js,
+            h_s_r_js=self.h_s_r_js,
+            k_ei_js_js=self.k_ei_js_js,
+            phi_a0_js=self.phi_a0_js,
+            phi_t0_js=self.phi_t0_js
         )
 
     def get_f_cvl_js_n_pls(
@@ -568,17 +888,13 @@ class Boundaries:
             式(2.28)
         """
 
-        theta_dsh_s_t_js_ms_n_pls = _get_theta_dsh_s_t_js_ms_n_pls(
-            phi_t1_js_ms=self._phi_t1_js_ms,
-            r_js_ms=self._r_js_ms,
+        theta_dsh_s_t_js_ms_n_pls = self.bcomps._get_theta_dsh_s_t_js_ms_n_pls(
             theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n,
             theta_rear_js_n=theta_rear_js_n
         )
 
-        theta_dsh_s_a_js_ms_n_pls = _get_theta_dsh_s_a_js_ms_n_pls(
-            phi_a1_js_ms=self._phi_a1_js_ms,
+        theta_dsh_s_a_js_ms_n_pls = self.bcomps._get_theta_dsh_s_a_js_ms_n_pls(
             q_s_js_n=q_s_js_n,
-            r_js_ms=self._r_js_ms,
             theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n
         )
 
@@ -586,11 +902,42 @@ class Boundaries:
         
         return theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls
 
-    def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
+    def get_f_wsc_js_ns(self, f_ax_js_js, q_s_sol_js_ns):
+        """
 
-        theta_dsh_s_a_js_ms_n = q_srf_js_n * self._phi_a1_js_ms / (1.0 - self._r_js_ms)
-        theta_dsh_s_t_js_ms_n = theta_rear_js_n * self._phi_t1_js_ms / (1.0 - self._r_js_ms)
-        return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
+        Args:
+            f_ax_js_js: 係数 f_{AX}, -, [j, j]
+            q_s_sol_js_ns: the transparent solar radiation absorbed by the boundary j at step n, W/m2, [J, N]
+
+        Returns:
+            係数 f_{WSC,n}, degree C, [j, n]
+
+        Notes:
+            式(4.1)
+        """
+
+        f_crx_js_ns = self.get_f_crx_js_ns(q_s_sol_js_ns=q_s_sol_js_ns)
+
+        return np.linalg.solve(f_ax_js_js, f_crx_js_ns)
+
+    def get_f_wsb_js_is(self, beta_is, f_flr_js_is):
+        """
+
+        Args:
+            beta_is: 室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+            f_flr_js_is: 室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
+
+        Returns:
+            係数 f_WSB, K/W, [j, i]
+
+        Notes:
+            式(2.11)
+
+        """
+
+        f_flb_js_is = self.get_f_flb_js_is(beta_is= beta_is, f_flr_js_is=f_flr_js_is)
+
+        return np.linalg.solve(self.f_ax_js_js, f_flb_js_is)
 
 
 def _get_p_is_js(id_r_is:np.ndarray, connected_room_id_js: np.ndarray):
@@ -632,7 +979,6 @@ def _get_p_is_j(id_r_is: np.ndarray, connected_room_id_j: int):
         raise ValueError("id_r_is = " + str(id_r_is) + ", connected_room_id_j = " + str(connected_room_id_j))
 
 
-
 def _get_room_index(id_r_is: np.ndarray, id: int):
     """Get the index of rooms matched to the specify id.
 
@@ -658,706 +1004,6 @@ def _get_room_index(id_r_is: np.ndarray, id: int):
     return matched_indices[0]
 
 
-def _read_j_rear(b: Dict, id: int, t_b: BoundaryType, id_js: np.ndarray) -> int | None:
-    """Get the rear surface boundary index.
-
-    Args:
-        b: dictionary of boundries
-        id: boundary id
-        t_b: boundary type
-        id_js: list of the boundaries, [J]
-
-    Returns:
-        rear surface boundary index
-    Notes:
-        This index is defined only in case of INTERNAL as type of boundary.
-    """
-
-    if t_b == BoundaryType.INTERNAL:
-        rear_surface_boundary_id = int(b['rear_surface_boundary_id'])
-        rear_boundary_index = _get_boundary_index(id_js=id_js, rear_surface_boundary_id=rear_surface_boundary_id, id=id)
-        return rear_boundary_index
-    else:
-        return None
-
-
-def _get_boundary_index(id_js: np.ndarray, rear_surface_boundary_id: int, id: int) -> int:
-    """Get the boundary index matched to the specify id.
-
-    Args:
-        id_js: list of the indices of boundaries
-        rear_surface_boundary_id: specified boundary id as rear surface
-        id: id of this boundary
-
-    Raises:
-        ValueError: There is no boundary index corresponding to the specified index.
-        ValueError: Multiple indices were found corresponding to the specified index.
-
-    Returns:
-        the boundary index
-    """
-
-    matched_indices = [index for (index, id_j) in enumerate(id_js) if id_j == rear_surface_boundary_id]
-
-    if len(matched_indices) == 0:
-        raise ValueError("境界(ID=" + str(id) + ")(間仕切りの場合)の裏面のIDとして指定する boundary ID 存在しませんでした。")
-    if len(matched_indices) > 1:
-        raise ValueError("境界(ID=" + str(id) + ")(間仕切りの場合)の裏面のIDとして指定する boundary ID が複数存在しました。")
-    
-    return matched_indices[0]
-
-
-def _read_a_s(d: Dict) -> float:
-    """Read the surface area.
-
-    Args:
-        d: dictionary of boundary
-    Regurns:
-        surface area, m2
-    """
-
-    # surface area / 表面積, m2
-    a_s = float(d['area'])
-
-    if a_s <= 0.0:
-        id = int(d['id'])        
-        raise ValueError("境界(ID=" + str(id) + ")の面積で0以下の値が指定されました。")
-    
-    return a_s
-
-
-def _read_eps_s(d: Dict) -> float:
-    """Read the surface emissivity.
-
-    Args:
-        d: dictionary of boundary
-    Regurns:
-        surface emissivity, -
-    """
-
-    # surface emissivity / 放射率, -
-    eps_s = float(d.get('inside_emissivity', 0.9))
-
-    if eps_s <= 0.0:
-        id = int(d['id'])
-        raise ValueError("境界(ID=" + str(id) + ")の放射率で0以下の値が指定されました。")
-
-    return eps_s
-
-
-def _read_k_eo(d: Dict, id: int, t_b: BoundaryType) -> float:
-    """Read the temperature difference coefficient.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        temperature difference coefficient
-    """
-
-    if t_b in [
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_OPAQUE_PART
-    ]:
-        k_eo = float(d['temp_dif_coef'])
-    elif t_b == BoundaryType.GROUND:
-        k_eo = 1.0
-    elif t_b == BoundaryType.INTERNAL:
-        k_eo = 0.0
-    else:
-        raise Exception()
-
-    if k_eo > 1.0:
-        raise ValueError("境界(ID=" + str(id) + ")の温度差係数で1.0を超える値が指定されました。")
-
-    if k_eo < 0.0:
-        raise ValueError("境界(ID=" + str(id) + ")の温度差係数で0.0を下回る値が指定されました。")
-    
-    return k_eo
-
-
-def _read_b_sun_strkd_out(d: Dict, id: int, t_b: BoundaryType) -> bool:
-
-    if t_b in [
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_OPAQUE_PART
-    ]:
-        return bool(d['is_sun_striked_outside'])
-    elif t_b in [
-        BoundaryType.INTERNAL,
-        BoundaryType.GROUND
-    ]:
-        return False
-    else:
-        raise Exception()
-
-
-def _read_t_drct(d: Dict, b_sun_strkd_out: bool) -> Optional[Direction]:
-
-    if b_sun_strkd_out:
-        return Direction(d['direction'])
-    else:
-        return None
-
-
-def _read_ssp(ssp_dict: Dict, b_sun_strkd_out: bool, t_drct: Direction | None) -> SolarShading | None:
-    
-    if b_sun_strkd_out:
-
-        if t_drct is None:
-            raise Exception('t_drct should be defined when b_sun_strkd_out is True.')
-
-        return SolarShading.create(ssp_dict=ssp_dict, direction=t_drct)
-
-    else:
-
-        return None
-
-
-def _read_a_sol(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
-    """Get the solar absorption ratio at the outside surface of boundary j.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        solar absorption ratio at outside surface of boundary
-    """
-
-    if t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        a_sol = float(d['outside_solar_absorption'])
-
-        if a_sol < 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の日射吸収率で0.0未満の値が指定されました。")
-
-        if a_sol > 1.0:
-            raise ValueError("境界(ID=" + str(id) + ")の日射吸収率で1.0より大の値が指定されました。")
-
-        return a_sol
-
-    elif t_b in [BoundaryType.INTERNAL, BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.GROUND]:
-
-        return None
-
-    else:
-        raise Exception()
-        
-
-def _read_r_s_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
-    """Get the outside heat transfer resistance.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        outside heat transfer resistance, m2 K / W
-    """
-
-    if t_b in [BoundaryType.INTERNAL, BoundaryType.GROUND]:
-
-        return None
-
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        r_s_o = float(d['outside_heat_transfer_resistance'])
-
-        if r_s_o <= 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の室外側熱伝達抵抗で0.0以下の値が指定されました。")
-
-        return r_s_o
-
-    else:
-
-        raise Exception()
-
-
-def _read_eps_r_o(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
-    """Get the long wavelength emissivity at the outside surface of boundary j.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        long wavelength emissivity at outside surface of boundary
-    """
-    
-    if t_b in [BoundaryType.INTERNAL, BoundaryType.GROUND]:
-    
-        return None
-    
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
-    
-        eps_r = float(d['outside_emissivity'])
-
-        if eps_r > 1.0:
-            raise ValueError("境界(ID=" + str(id) + ")の室外側長波長放射率で1.0を超える値が指定されました。")
-
-        if eps_r < 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の室外側長波長放射率で0.0を下回る値が指定されました。")
-
-        return eps_r
-    
-    else:
-    
-        raise Exception()
-
-
-def _get_u_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
-    """Get the standard u value of boundary.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        standard u value of boundary
-    """
-
-    if t_b in [BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        u_nmnl = float(d['u_value'])
-
-        if u_nmnl <= 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の熱貫流率で0.0以下の値が指定されました。")
-        
-        return u_nmnl
-    
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
-        
-        return None
-        
-    else:
-        raise Exception()
-
-
-def _read_eta_std(d: Dict, id: int, t_b: BoundaryType) -> Optional[float]:
-    """Get the standard eta value of the boundary.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        standard eta value of boundary
-    """
-
-    if t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        eta_value = float(d['eta_value'])
-
-        if eta_value <= 0.0:
-            raise ValueError("境界(ID=" + str(id) + ")の日射熱取得率で0.0以下の値が指定されました。")
-
-        return eta_value
-
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
-
-        return None
-
-    else:
-        raise Exception()
-
-        
-def _read_r_a_w_g(d: Dict, id: int, t_b: BoundaryType) -> float | None:
-    """Get the ratio of the grazing area to the opening area.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        ratio of the grazing area to the opening area
-    """
-
-    match t_b:
-
-        case BoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-            # 開口部の面積に対するグレージングの面積の比率
-            r_a_w_g = d['glass_area_ratio']
-        
-            if r_a_w_g < 0.0:
-                raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で0.0未満の値が指定されました。")
-            
-            if r_a_w_g > 1.0:
-                raise ValueError("境界(ID=" + str(id) + ")の開口部の面積に対するグレージング面積の比率で1.0より大の値が指定されました。")
-            
-            return r_a_w_g
-    
-        case BoundaryType.EXTERNAL_GENERAL_PART | BoundaryType.EXTERNAL_OPAQUE_PART | BoundaryType.INTERNAL | BoundaryType.GROUND:
-
-            return None
-    
-        case _:
-
-            raise ValueError()
-
-
-def _read_t_glz(d: Dict, id: int, t_b: BoundaryType) -> Optional[window.GlassType]:
-    """Get the type of the grazing of the boundary.
-
-    Args:
-        d: dictionary of boundary
-        id: boundary id
-        t_b: boundary type
-
-    Returns:
-        type of grazing of boundary
-    """
-
-    if t_b == BoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        return window.GlassType(d['incident_angle_characteristics'])
-    
-    elif t_b in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
-        
-        return None
-    else:
-
-        raise Exception()
-
-
-def _get_window_class_j(t_b_j: BoundaryType, u_w_std_j: Optional[float], eta_w_std_j: Optional[float], t_glz_j: Optional[window.GlassType], r_a_w_g_j: Optional[float]) -> Optional[Window]:
-
-    if t_b_j in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.INTERNAL, BoundaryType.GROUND]:
-        
-        return None
-    
-    elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        if u_w_std_j is None:
-            raise Exception("u_w_std should be decided when boundary type is external transparent part.")
-        
-        if eta_w_std_j is None:
-            raise Exception("eta_w_std should be decided when boundary type is external transparent part.")
-
-        if t_glz_j is None:
-            raise Exception("t_glz should be decided when boundary type is external transparent part.")
-    
-        return Window(u_w_std_j=u_w_std_j, eta_w_std_j=eta_w_std_j, t_glz_j=t_glz_j, r_a_w_g_j=r_a_w_g_j)
-
-    else:
-
-        raise Exception()
-
-
-def _get_theta_o_eqv_j_ns(
-    t_b_j: BoundaryType,
-    w: Weather,
-    b_sun_strkd_out_j: Optional[bool],
-    t_drct_j: Optional[Direction],
-    a_sol_j: Optional[float],
-    eps_r_o_j: Optional[float],
-    r_s_o_j: Optional[float],
-    ssp_j: Optional[SolarShading],
-    u_w_std_j: Optional[float],
-    window_j: Optional[Window]
-) -> np.ndarray:
-    """Calculate the equivalent outside temperature of boundary j at step n.
-
-    Args:
-        t_b_j: type of boundary j
-        w: weather class
-        b_sun_strkd_out_j: is the sun striked to boundary j
-        t_drct_j: direction of boundary j
-        a_sol_j: solar absorption ratio of boundary j, -
-        eps_r_o_j: long wavelength emissivity of boundary j, -
-        r_s_o_j: thermal resistance at the outside surface of boundary j, m2 K / W
-        ssp_j: solar shading part class of boundary j
-        u_w_std_j: standard heat transmittance coefficient (U value) of boundary j, W / m2 K
-        window_j: window class of boundary j
-
-    Returns:
-        equivalent outside temperature of boundary j at step n, degree C, [N+1]
-    """
-    
-    if t_b_j == BoundaryType.INTERNAL:
-
-        return outside_eqv_temp.get_theta_o_eqv_j_ns_for_internal(w=w)
-
-    elif t_b_j in [BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        if b_sun_strkd_out_j:
-
-            if t_drct_j is None:
-                raise Exception("t_drct should be decided when boundary type is external transparent part.")
-            
-            if a_sol_j is None:
-                raise Exception("a_sol should be decided when boundary type is external transparent part.")
-            
-            if eps_r_o_j is None:
-                raise Exception("eps_r_o should be decided when boundary type is external transparent part.")
-            
-            if r_s_o_j is None:
-                raise Exception("r_s_o should be decided when boundary type is external transparent part.")
-            
-            if ssp_j is None:
-                raise Exception("ssp should be decided when boundary type is external transparent part.")
-        
-            return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_general_part_and_external_opaque_part(
-                t_drct_j=t_drct_j, a_sol_j=a_sol_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, ssp_j=ssp_j, w=w
-            )
-
-        else:
-
-            return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)  
-
-    elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        if b_sun_strkd_out_j:
-
-            if t_drct_j is None:
-                raise Exception("t_drct should be defined when sun is striked out.")
-
-            if eps_r_o_j is None:
-                raise Exception("eps_r_o should be defined when sun is striked out.")
-
-            if r_s_o_j is None:
-                raise Exception("r_s_o should be defined when sun is striked out.")
-
-            if u_w_std_j is None:
-                raise Exception("u_w_std should be defined when sun is striked out.")
-
-            if ssp_j is None:
-                raise Exception("ssp should be defined when sun is striked out.")
-
-            if window_j is None:
-                raise Exception("window should be defined when sun is striked out.")
-
-            return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_transparent_part(
-                t_drct_j=t_drct_j, eps_r_o_j=eps_r_o_j, r_s_o_j=r_s_o_j, u_w_std_j=u_w_std_j, ssp_j=ssp_j, window_j=window_j, w=w
-            )
-
-        else:
-
-            return outside_eqv_temp.get_theta_o_eqv_j_ns_for_external_not_sun_striked(w=w)
-
-    elif t_b_j == BoundaryType.GROUND:
-
-        return outside_eqv_temp.get_theta_o_eqv_j_ns_for_ground(w=w)
-
-    else:
-
-        raise Exception()
-
-
-def _get_q_trs_sol_j_ns(t_b_j: BoundaryType, w: Weather, b_sun_strkd_out_j: Optional[bool], t_drct_j: Optional[Direction], a_s_j: float, ssp_j: Optional[SolarShading], window_j: Optional[Window]) -> np.ndarray:
-    """Calculate the transmitted solar radiation of boundary j at step n
-
-    Args:
-        t_b_j: type of boundary j
-        w: weather class
-        b_sun_strkd_out_j: is the sun striked at boundary j
-        t_drct_j: direction of boundary j
-        a_s_j: solar absorption ratio of boundary j
-        ssp_j: solar shading part class of boundary j
-        window_j: window class of boundary j
-
-    Returns:
-        transmitted solar radiation of boundary j at step n, W, [N+1]
-    """
-
-    if t_b_j in [BoundaryType.INTERNAL, BoundaryType.EXTERNAL_GENERAL_PART, BoundaryType.EXTERNAL_OPAQUE_PART, BoundaryType.GROUND]:
-
-        return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
-
-    elif t_b_j == BoundaryType.EXTERNAL_TRANSPARENT_PART:
-
-        if b_sun_strkd_out_j:
-
-            if t_drct_j is None:
-                raise Exception("t_drct should be defined when sun is striked out.")
-
-            if ssp_j is None:
-                raise Exception("ssp should be defined when sun is striked out.")
-
-            if window_j is None:
-                raise Exception("window should be defined when sun is striked out.")
-
-            return transmission_solar_radiation.get_q_trs_sol_j_ns_for_transparent_sun_striked(
-                t_drct_j=t_drct_j, a_s_j=a_s_j, ssp_j=ssp_j, window_j=window_j, w=w
-            )
-    
-        else:
-
-            return transmission_solar_radiation.get_q_trs_sol_j_ns_for_not(w=w)
-    
-    else:
-
-        raise Exception()
-
-
-def _read_r_i_std_j(d: Dict, boundary_id: int) -> float:
-    """
-    室内側熱伝達抵抗を取得する。
-    Args:
-        d: 境界の辞書
-        boundary_id: 境界のID
-
-    Returns:
-        室内側熱伝達抵抗, m2K/W
-
-    """
-
-    # 室内側熱伝達抵抗, m2K/W
-    r_i = float(d['inside_heat_transfer_resistance'])
-
-    if r_i <= 0.0:
-        raise ValueError("境界(ID=" + str(boundary_id) + ")の室内側熱伝達抵抗で0.0以下の値が指定されました。")
-
-    return r_i
-
-
-def _get_response_factor(d: Dict, h_s_c_rear_j: Optional[float], h_s_r_rear_j: Optional[float], id_j: int, t_b_j: BoundaryType, r_s_o_j: Optional[float], u_w_std_j: Optional[float]) -> ResponseFactor:
-    """Get response factor of boundary j.
-
-    Args:
-        d: dictionary of boundary j
-        h_s_c_rear_j: convective heat transfer coefficient of rear surface of boundary j, W/m2K
-        h_s_r_rear_j: radiative heat transfer coefficient of rear surface of boundary j, W/m2K
-        id_j: id of boundary j
-        t_b_j: typoe of boundary j
-        r_s_o_j: outside heat transfer resistance of boundary j, m2 K / W
-        u_w_std_j: standard heat transmittance coefficient (U value) of boundary j, W/m2K
-
-    Returns:
-        response factor class
-    """
-
-
-    if t_b_j == BoundaryType.INTERNAL:
-
-        layers: List[Dict] = d['layers']
-
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(layers)])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(layers)])
-
-        if h_s_c_rear_j is None:
-            raise Exception("h_s_c_rear should be defined when boundary type is internal.")
-
-        if h_s_r_rear_j is None:
-            raise Exception("h_s_r_rear should be defined when boundary type is internal.")
-
-        r_rear_j = 1.0 / (h_s_c_rear_j + h_s_r_rear_j)
-
-        return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_rear_j)
-
-    elif t_b_j == BoundaryType.EXTERNAL_GENERAL_PART:
-
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-
-        if r_s_o_j is None:
-            raise Exception("r_s_o should be defined when boundary type is external general part.")
-
-        return ResponseFactor.create_for_unsteady_not_ground(cs=c_j_ls, rs=r_j_ls, r_o=r_s_o_j)
-
-    elif t_b_j in [BoundaryType.EXTERNAL_TRANSPARENT_PART, BoundaryType.EXTERNAL_OPAQUE_PART]:
-
-        r_i_std_j = _read_r_i_std_j(d=d, boundary_id=id_j)
-
-        if u_w_std_j is None:
-            raise Exception("u_w_std should be defined when boundary type is external transparent part or external opaque part.")
-
-        return ResponseFactor.create_for_steady(u_w=u_w_std_j, r_i=r_i_std_j)
-
-    elif t_b_j == BoundaryType.GROUND:
-
-        c_j_ls = np.array([_read_cs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-        r_j_ls = np.array([_read_rs_j_l(layer=layer, id=id_j, layer_id=l) for (l, layer) in enumerate(d['layers'])])
-
-        return ResponseFactor.create_for_unsteady_ground(cs=c_j_ls, rs=r_j_ls)
-
-    else:
-
-        raise KeyError()
-
-
-def _read_cs_j_l(layer: Dict, id: int, layer_id: int) -> float:
-
-    cs_j_l = float(layer['thermal_capacity'])
-
-    if cs_j_l < 0.0:
-        raise ValueError("境界(ID=" + str(id) + ")の層(ID=" + str(layer_id) + ")の熱容量で0.0未満の値が指定されました。")
-
-    return cs_j_l
-
-
-def _read_rs_j_l(layer: Dict, id: int, layer_id: int) -> float: 
-
-    rs_j_l = float(layer['thermal_resistance'])
-
-    if rs_j_l <= 0.0:
-        raise ValueError("境界(ID=" + str(id) + ")の層(ID=" + str(layer_id) + ")の熱抵抗で0.0以下の値が指定されました。")
-
-    return rs_j_l
-
-
-def _get_k_ei_js_j(id_js: np.ndarray, t_b_j: BoundaryType, j_rear_j: Optional[int]) -> np.ndarray:
-
-    k_ei_js_j = np.zeros_like(id_js, dtype=float).flatten()
-
-    if t_b_j in [
-        BoundaryType.EXTERNAL_OPAQUE_PART,
-        BoundaryType.EXTERNAL_TRANSPARENT_PART,
-        BoundaryType.EXTERNAL_GENERAL_PART,
-        BoundaryType.GROUND
-    ]:
-        pass
-
-    elif t_b_j == BoundaryType.INTERNAL:
-        # 室内壁の場合にk_ei_jsを登録する。
-        k_ei_js_j[j_rear_j] = 1.0
-
-    else:
-        raise Exception()
-    
-    return k_ei_js_j
-
-
-def _get_k_s_r_j(t_b_j: BoundaryType, k_eo_j: Optional[float]) -> float:
-    """Get the coefficient representing the effect of the room air temperature to the rear temperature of boundary j.
-
-    Args:
-        t_b_j: type of boundary j
-        k_eo_j: temperature difference coefficient of oundary j
-
-    Returns:
-        coefficient representing the effect of room air temperature to rear temperature of boundary j
-    """
-
-    match t_b_j:
-
-        case BoundaryType.EXTERNAL_OPAQUE_PART | BoundaryType.EXTERNAL_TRANSPARENT_PART | BoundaryType.EXTERNAL_GENERAL_PART:
-
-            if k_eo_j is None:
-                raise Exception("k_eo_j should be defined when boundary type is external opaque part, external transparent part, or external general part.")
-
-            return round(1.0 - k_eo_j, 2)
-
-        case BoundaryType.INTERNAL | BoundaryType.GROUND:
-
-            return 0.0
-        
-        case _:
-
-            raise Exception()
-
-
 def _get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0_js, phi_t0_js):
     """
 
@@ -1371,7 +1017,7 @@ def _get_f_ax_js_is(f_mrt_is_js, h_s_c_js, h_s_r_js, k_ei_js_js, p_js_is, phi_a0
         phi_t0_js: 境界 j の貫流応答係数の初項, -, [j, 1]
 
     Returns:
-        係数 f_AX, -, [j, j]
+        係数 f_AX, -, [J, J]
 
     Notes:
         式(4.5)
@@ -1428,13 +1074,13 @@ def _get_f_crx_js_ns(h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js, q_s_s
         + phi_t0_js * theta_o_eqv_js_ns * k_eo_js
 
 
-def _get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
+def _get_f_flb_js_is(a_s_js, beta_is, f_flr_js_is, h_s_c_js, h_s_r_js, k_ei_js_js, phi_a0_js, phi_t0_js):
     """
 
     Args:
         a_s_js: 境界 j の面積, m2, [j, 1]
-        beta_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
-        f_flr_js_is_n: ステップ n からステップ n+1 における室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
+        beta_is: 室 i の放射暖冷房設備の対流成分比率, -, [i, 1]
+        f_flr_js_is: 室 i の放射暖冷房設備の放熱量の放射成分に対する境界 j の室内側表面の吸収比率, -, [j, i]
         h_s_c_js: 境界 j の室内側対流熱伝達率, W/(m2 K), [j, 1]
         h_s_r_js: 境界 j の室内側放射熱伝達率, W/(m2 K), [j, 1]
         k_ei_js_js: 境界 j の裏面温度に境界　j* の等価温度が与える影響, -, [j*, j]
@@ -1442,15 +1088,15 @@ def _get_f_flb_js_is_n_pls(a_s_js, beta_is_n, f_flr_js_is_n, h_s_c_js, h_s_r_js,
         phi_t0_js: 境界 |j| の貫流応答係数の初項, -, [j]
 
     Returns:
-        ステップ n+1 における係数 f_FLB, K/W, [j, i]
+        係数 f_FLB, K/W, [j, i]
 
     Notes:
         式(2.12)
 
     """
 
-    return f_flr_js_is_n * (1.0 - beta_is_n.T) * phi_a0_js / a_s_js \
-        + np.dot(k_ei_js_js, f_flr_js_is_n * (1.0 - beta_is_n.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
+    return f_flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_s_js \
+        + np.dot(k_ei_js_js, f_flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
 
 
 def _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
@@ -1468,42 +1114,19 @@ def _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
     return np.sum(theta_dsh_s_t_js_ms_n_pls + theta_dsh_s_a_js_ms_n_pls, axis=1, keepdims=True)
 
 
-def _get_theta_dsh_s_t_js_ms_n_pls(phi_t1_js_ms, r_js_ms, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
+def _get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
     """
 
     Args:
-        phi_t1_js_ms: 境界 j の項別公比法の指数項 m の貫流応答係数, -, [j, m]
-        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-        theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-        theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
+        f_ax_js_js: 係数 f_AX, -, [j, j]
+        f_fia_js_is: 係数 f_FIA, -, [j, i]
 
     Returns:
-        ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
+        係数 f_WSR, -, [j, i]
 
     Notes:
-        式(2.30)
+        式(4.2)
     """
 
-    return phi_t1_js_ms * theta_rear_js_n + r_js_ms * theta_dsh_srf_t_js_ms_n
-
-
-def _get_theta_dsh_s_a_js_ms_n_pls(phi_a1_js_ms, q_s_js_n, r_js_ms, theta_dsh_srf_a_js_ms_n):
-    """
-
-    Args:
-        phi_a1_js_ms: 境界 j の項別公比法の指数項 m の吸熱応答係数, m2 K/W, [j, m]
-        q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-        r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-        theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-    Returns:
-        ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-    Notes:
-        式(2.29)
-    """
-
-    return phi_a1_js_ms * q_s_js_n + r_js_ms * theta_dsh_srf_a_js_ms_n
-
-
+    return np.linalg.solve(f_ax_js_js, f_fia_js_is)
 
