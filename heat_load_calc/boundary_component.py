@@ -1,6 +1,8 @@
+from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 import numpy as np
+
 
 from heat_load_calc.input_models.input_boundary import (
     InputBoundary,
@@ -79,6 +81,19 @@ class BoundaryComponentsStatus:
             theta_dsh_s_t_js_ms=np.full((n_b, 12), 0.0),
             theta_dsh_s_a_js_ms=np.full((n_b, 12), 0.0)
         )
+    
+    def take_over(self, is_ground: np.ndarray, bcs_ground_js: BoundaryComponentsStatus):
+        
+        theta_dsh_s_t_js_ms = self.theta_dsh_s_t_js_ms
+        theta_dsh_s_a_js_ms = self.theta_dsh_s_a_js_ms
+
+        theta_dsh_s_t_js_ms[is_ground, :] = bcs_ground_js.theta_dsh_s_t_js_ms
+        theta_dsh_s_a_js_ms[is_ground, :] = bcs_ground_js.theta_dsh_s_a_js_ms
+
+        return BoundaryComponentsStatus(
+            theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms,
+            theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms
+        )
 
 @dataclass
 class BoundaryComponents:
@@ -152,12 +167,11 @@ class BoundaryComponents:
             theta_dsh_srf_a_js_ms_n=bcs_js_n.theta_dsh_s_a_js_ms
         )
 
-        return theta_dsh_srf_t_js_ms_n_pls, theta_dsh_srf_a_js_ms_n_pls, BoundaryComponentsStatus(
+        return BoundaryComponentsStatus(
             theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n_pls,
             theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n_pls            
         )
         
-
     def _get_theta_dsh_s_t_js_ms_n_pls(self, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
         """
 
@@ -220,10 +234,27 @@ class BoundaryComponents:
         # return theta_dsh_s_a_js_ms_n_pls
         return self.phi_a1_js_ms * q_s_js_n + self.r_js_ms * theta_dsh_srf_a_js_ms_n
 
+    def _get_f_cvl_js_n_pls(self, bcs_js_n_pls: BoundaryComponentsStatus):
+        """
+
+        Args:
+            bcs_js_n_pls: BoundaryComponentsStatus
+
+        Returns:
+            ステップ n+1 における係数 f_CVL, degree C, [j, 1]
+        Notes:
+            式(2.28)
+        """
+        return np.sum(bcs_js_n_pls.theta_dsh_s_t_js_ms + bcs_js_n_pls.theta_dsh_s_a_js_ms, axis=1, keepdims=True)
+
     def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
 
         theta_dsh_s_a_js_ms_n = q_srf_js_n * self.phi_a1_js_ms / (1.0 - self.r_js_ms)
         theta_dsh_s_t_js_ms_n = theta_rear_js_n * self.phi_t1_js_ms / (1.0 - self.r_js_ms)
-        return theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n
+
+        return BoundaryComponentsStatus(
+            theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n,
+            theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n
+        )
 
 

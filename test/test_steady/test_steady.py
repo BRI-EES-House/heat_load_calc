@@ -281,7 +281,7 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
         + np.dot(bs.k_s_r_js_is, theta_r_is_n)
     )
 
-    theta_dsh_s_a_js_ms_n, theta_dsh_s_t_js_ms_n = bs.bcomps.get_wall_steady_state_status(
+    bcs_n = bs.bcomps.get_wall_steady_state_status(
         q_srf_js_n=q_s_js_n,
         theta_rear_js_n=theta_rear_js_n
     )
@@ -299,13 +299,11 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
         theta_r_is_n=theta_r_is_n,
         theta_mrt_hum_is_n=theta_mrt_hum_is_n,
         x_r_is_n=x_r_is_n,
-        theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n,
-        theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n,
         q_s_js_n=q_s_js_n,
         theta_frt_is_n=theta_frt_is_n,
         x_frt_is_n=x_frt_is_n,
         theta_ei_js_n=theta_ei_js_n,
-        bcs_n=BoundaryComponentsStatus(theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n, theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n)
+        bcs_n=bcs_n
     )
 
     return c_n

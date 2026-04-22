@@ -357,12 +357,10 @@ class Sequence:
             v_r_is=self.rms.v_r_is
         )
 
-        # ステップ n+1 の境界 j における項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m] (m=12), eq.(29)
-        # ステップ n+1 の境界 j における項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
         # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
-        theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(
-            theta_dsh_srf_t_js_ms_n=c_n.bcs_n.theta_dsh_s_t_js_ms,
-            theta_dsh_srf_a_js_ms_n=c_n.bcs_n.theta_dsh_s_a_js_ms,
+        # Boundary Component Status as step n+1
+        f_cvl_js_n_pls, bcs_n_pls = self.bs.get_f_cvl_js_n_pls(
+            bcs_js_n= c_n.bcs_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=c_n.q_s_js_n
         )
@@ -885,18 +883,11 @@ class Sequence:
                 v_vent_ntr_is_n=v_vent_ntr_is_n
             )
         
-        bcs_n_pls = BoundaryComponentsStatus(
-            theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n_pls,
-            theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n_pls
-        )
-
         return Conditions(
             operation_mode_is_n=operation_mode_is_n,
             theta_r_is_n=theta_r_is_n_pls,
             theta_mrt_hum_is_n=theta_mrt_hum_is_n_pls,
             x_r_is_n=x_r_is_n_pls,
-            theta_dsh_s_a_js_ms_n=theta_dsh_s_a_js_ms_n_pls,
-            theta_dsh_s_t_js_ms_n=theta_dsh_s_t_js_ms_n_pls,
             q_s_js_n=q_s_js_n_pls,
             theta_frt_is_n=theta_frt_is_n_pls,
             x_frt_is_n=x_frt_is_n_pls,
@@ -918,17 +909,18 @@ class Sequence:
 
         bcs_js_n = gc_n.bcs_js_n
 
-        theta_dsh_srf_t_js_ms_npls, theta_dsh_srf_a_js_ms_npls, bcs_js_n_pls = self.bs.bcomps_ground._get_next_boundary_components_status(
+        bcs_js_n_pls = self.bs.bcomps_ground._get_next_boundary_components_status(
             bcs_js_n=bcs_js_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=gc_n.q_srf_js_n
         )
 
+        f_cvl_js_n_pls = self.bs.bcomps_ground._get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
+
         theta_s_js_npls = (
             self.bs.bcomps_ground.phi_a0_js * h_i_js * self.weather.theta_o_ns_plus[n+1]
             + self.bs.bcomps_ground.phi_t0_js * theta_rear_js_npls
-            + np.sum(theta_dsh_srf_a_js_ms_npls, axis=1, keepdims=True)
-            + np.sum(theta_dsh_srf_t_js_ms_npls, axis=1, keepdims=True)
+            + f_cvl_js_n_pls
         ) / (1.0 + self.bs.bcomps_ground.phi_a0_js * h_i_js)
 
         q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)

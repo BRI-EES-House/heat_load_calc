@@ -691,7 +691,7 @@ class Boundaries:
         bss = [Boundary.get_boundary(h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, w=w, id_js=id_js, ipt_boundary=ipt_boundary) for ipt_boundary in ipt_boundaries]
 
         # GOUND の数
-        n_ground =sum(bs.t_b == EBoundaryType.GROUND for bs in bss)
+        n_ground = sum(bs.t_b == EBoundaryType.GROUND for bs in bss)
 
         # id of boundary j, [J, 1]
         id_js = np.array([bs.id for bs in bss]).reshape(-1, 1)
@@ -851,16 +851,14 @@ class Boundaries:
 
     def get_f_cvl_js_n_pls(
             self,
-            theta_dsh_srf_t_js_ms_n: np.ndarray,
-            theta_dsh_srf_a_js_ms_n: np.ndarray,
+            bcs_js_n: BoundaryComponentsStatus,
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
-        ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        ) -> tuple[np.ndarray, BoundaryComponentsStatus]:
         """
 
         Args:
-            theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-            theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
+            bcs_js_n: boundary components status at step n
             theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
             q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
 
@@ -870,30 +868,15 @@ class Boundaries:
             式(2.28)
         """
 
-        # theta_dsh_s_t_js_ms_n_pls = self.bcomps._get_theta_dsh_s_t_js_ms_n_pls(
-        #     theta_dsh_srf_t_js_ms_n=theta_dsh_srf_t_js_ms_n,
-        #     theta_rear_js_n=theta_rear_js_n
-        # )
-
-        # theta_dsh_s_a_js_ms_n_pls = self.bcomps._get_theta_dsh_s_a_js_ms_n_pls(
-        #     q_s_js_n=q_s_js_n,
-        #     theta_dsh_srf_a_js_ms_n=theta_dsh_srf_a_js_ms_n
-        # )
-
-        bcs_js_n = BoundaryComponentsStatus(
-            theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n,
-            theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n
-        )
-
-        theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, bcs_js_n_pls = self.bcomps._get_next_boundary_components_status(
+        bcs_js_n_pls = self.bcomps._get_next_boundary_components_status(
             bcs_js_n=bcs_js_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=q_s_js_n
         )
 
-        f_cvl_js_n_pls = _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls=theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls=theta_dsh_s_t_js_ms_n_pls)
+        f_cvl_js_n_pls = self.bcomps._get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
         
-        return theta_dsh_s_t_js_ms_n_pls, theta_dsh_s_a_js_ms_n_pls, f_cvl_js_n_pls
+        return f_cvl_js_n_pls, bcs_js_n_pls
 
     def get_f_wsc_js_ns(self, f_ax_js_js, q_s_sol_js_ns):
         """
@@ -1090,21 +1073,6 @@ def _get_f_flb_js_is(a_s_js, beta_is, f_flr_js_is, h_s_c_js, h_s_r_js, k_ei_js_j
 
     return f_flr_js_is * (1.0 - beta_is.T) * phi_a0_js / a_s_js \
         + np.dot(k_ei_js_js, f_flr_js_is * (1.0 - beta_is.T)) * phi_t0_js / (h_s_c_js + h_s_r_js) / a_s_js
-
-
-def _get_f_cvl_js_n_pls(theta_dsh_s_a_js_ms_n_pls, theta_dsh_s_t_js_ms_n_pls):
-    """
-
-    Args:
-        theta_dsh_s_a_js_ms_n_pls: ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-        theta_dsh_s_t_js_ms_n_pls: ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-
-    Returns:
-        ステップ n+1 における係数 f_CVL, degree C, [j, 1]
-    Notes:
-        式(2.28)
-    """
-    return np.sum(theta_dsh_s_t_js_ms_n_pls + theta_dsh_s_a_js_ms_n_pls, axis=1, keepdims=True)
 
 
 def _get_f_wsr_js_is(f_ax_js_js, f_fia_js_is):
