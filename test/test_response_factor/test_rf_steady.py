@@ -24,17 +24,17 @@ class MyTestCase(unittest.TestCase):
                 rf: ResponseFactor = ResponseFactor.create_for_steady(u_w=u_w, r_i=r_i)
 
                 # RFA0 の確認
-                self.assertAlmostEqual(rf.rfa0, expected_rfa0)
+                self.assertAlmostEqual(rf.phi_a0_js, expected_rfa0)
 
                 # RFA1 の確認　（12個）
-                for result, expected in zip(rf.rfa1, expected_rfa1):
+                for result, expected in zip(rf.phi_a1_js_ms, expected_rfa1):
                     self.assertAlmostEqual(result, expected)
 
                 # RFT0 の確認
-                self.assertAlmostEqual(rf.rft0, expected_rft0)
+                self.assertAlmostEqual(rf.phi_t0_js, expected_rft0)
 
                 # RFT1 の確認　（12個）
-                for result, expected in zip(rf.rft1, expected_rft1):
+                for result, expected in zip(rf.phi_t1_js_ms, expected_rft1):
                     self.assertAlmostEqual(result, expected)
 
 

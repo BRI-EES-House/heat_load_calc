@@ -12,45 +12,45 @@ class ResponseFactor:
     # 根の数
     n_root = 12
 
-    def __init__(self, rft0: float, rfa0: float, rft1: np.ndarray, rfa1: np.ndarray, row: np.ndarray, r_total: float):
+    def __init__(self, phi_t0_js: float, phi_a0_js: float, phi_t1_js_ms: np.ndarray, phi_a1_js_ms: np.ndarray, r_js_ms: np.ndarray, r_total: float):
         """イニシャライザ
 
         Args:
-            rft0: 貫流応答係数の初項
-            rfa0: 吸熱応答係数の初項
-            rft1: 貫流応答係数
-            rfa1: 吸熱応答係数
-            row: 公比
+            phi_t0_js: 貫流応答係数の初項
+            phi_a0_js: 吸熱応答係数の初項
+            phi_t1_js_ms: 貫流応答係数
+            phi_a1_js_ms: 吸熱応答係数
+            r_js_ms: 公比
             r_total: 室内側表面から裏面空気までの熱抵抗, m2 K / W
         """
 
-        self._rft0 = rft0
-        self._rfa0 = rfa0
-        self._rft1 = rft1
-        self._rfa1 = rfa1
-        self._row = row
+        self._phi_t0_js = phi_t0_js
+        self._phi_a0_js = phi_a0_js
+        self._phi_t1_js_ms = phi_t1_js_ms
+        self._phi_a1_js_ms = phi_a1_js_ms
+        self._r_js_ms = r_js_ms
         self._r_total = r_total
 
 
     @property
-    def rft0(self):
-        return self._rft0
+    def phi_t0_js(self):
+        return self._phi_t0_js
 
     @property
-    def rfa0(self):
-        return self._rfa0
+    def phi_a0_js(self):
+        return self._phi_a0_js
 
     @property
-    def rft1(self):
-        return self._rft1
+    def phi_t1_js_ms(self):
+        return self._phi_t1_js_ms
 
     @property
-    def rfa1(self):
-        return self._rfa1
+    def phi_a1_js_ms(self):
+        return self._phi_a1_js_ms
 
     @property
-    def row(self):
-        return self._row
+    def r_js_ms(self):
+        return self._r_js_ms
     
     @property
     def r_total(self):
@@ -74,11 +74,11 @@ class ResponseFactor:
         r_total = 1.0 / u_w - r_i
 
         return ResponseFactor(
-            rft0=1.0,
-            rfa0=1.0 / u_so,
-            rft1=np.zeros(cls.n_root, dtype=float),
-            rfa1=np.zeros(cls.n_root, dtype=float),
-            row=np.zeros(cls.n_root, dtype=float),
+            phi_t0_js=1.0,
+            phi_a0_js=1.0 / u_so,
+            phi_t1_js_ms=np.zeros(cls.n_root, dtype=float),
+            phi_a1_js_ms=np.zeros(cls.n_root, dtype=float),
+            r_js_ms=np.zeros(cls.n_root, dtype=float),
             r_total=r_total
         )
 
@@ -104,11 +104,11 @@ class ResponseFactor:
         cs = cs * 1000.0
 
         # 応答係数
-        frt0, rfa0, rft1, rfa1, row = _calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
+        phi_t0, phi_a0, phi_t1_ms, phi_a1_ms, r_ms = _calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
 
         r_total = rs.sum() + r_o
 
-        return ResponseFactor(rft0=frt0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row, r_total=r_total)
+        return ResponseFactor(phi_t0_js=phi_t0, phi_a0_js=phi_a0, phi_t1_js_ms=phi_t1_ms, phi_a1_js_ms=phi_a1_ms, r_js_ms=r_ms, r_total=r_total)
 
     @classmethod
     def create_for_unsteady_ground(cls, cs: np.ndarray, rs: np.ndarray):
@@ -141,7 +141,7 @@ class ResponseFactor:
 
         r_total = rs.sum()
 
-        return ResponseFactor(rft0=rft0, rfa0=rfa0, rft1=rft1, rfa1=rfa1, row=row, r_total=r_total)
+        return ResponseFactor(phi_t0_js=rft0, phi_a0_js=rfa0, phi_t1_js_ms=rft1, phi_a1_js_ms=rfa1, r_js_ms=row, r_total=r_total)
 
 
 # ラプラス変数の設定
@@ -412,8 +412,8 @@ def _get_RFTRI(alp, AT0, AA0, AT, AA):
     # 二等辺三角波励振の応答係数の初項を計算
     dblTemp = np.array(alp) * 900
     dblE1 = (1.0 - np.exp(-dblTemp)) / dblTemp
-    dblRFT0 = AT0 + np.sum(dblE1 * AT)
-    dblRFA0 = AA0 + np.sum(dblE1 * AA)
+    phi_t0 = AT0 + np.sum(dblE1 * AT)
+    phi_a0 = AA0 + np.sum(dblE1 * AA)
 
     # 指数項別応答係数、公比を計算
     dblE1 = 1.0 / dblTemp * (1.0 - np.exp(-dblTemp)) ** 2.0
@@ -421,7 +421,7 @@ def _get_RFTRI(alp, AT0, AA0, AT, AA):
     dblRFA1 = - AA * dblE1
     dblRow = np.exp(-dblTemp)
 
-    return dblRFT0, dblRFA0, dblRFT1, dblRFA1, dblRow
+    return phi_t0, phi_a0, dblRFT1, dblRFA1, dblRow
 
 
 # 応答係数
@@ -450,18 +450,19 @@ def _calc_response_factor(is_ground: bool, cs: np.ndarray, rs: np.ndarray):
     AT0, AA0, AT, AA = _get_step_reps_of_wall(cs, rs, laps, alpha_m)
 
     # 二等辺三角波励振の応答係数、指数項別応答係数、公比の計算
-    RFT0, RFA0, RFT1, RFA1, Row = _get_RFTRI(alpha_m, AT0, AA0, AT, AA)
+    phi_t0, phi_a0, phi_t1_dsh_ms, phi_a1_dsh_ms, r_dsh_ms = _get_RFTRI(alpha_m, AT0, AA0, AT, AA)
 
     Nroot = len(alpha_m)  # 根の数
 
-    RFT1_12 = np.zeros(12)
-    RFA1_12 = np.zeros(12)
-    Row_12 = np.zeros(12)
-    RFT1_12[:len(RFT1)] = RFT1
-    RFA1_12[:len(RFA1)] = RFA1
-    Row_12[:len(Row)] = Row
+    phi_t1_ms = np.zeros(12)
+    phi_a1_ms = np.zeros(12)
+    r_ms = np.zeros(12)
+    phi_t1_ms[:len(phi_t1_dsh_ms)] = phi_t1_dsh_ms
+    phi_a1_ms[:len(phi_a1_dsh_ms)] = phi_a1_dsh_ms
+    r_ms[:len(r_dsh_ms)] = r_dsh_ms
 
-    return RFT0, RFA0, RFT1_12, RFA1_12, Row_12
+    return phi_t0, phi_a0, phi_t1_ms, phi_a1_ms, r_ms
+    #return phi_t0, phi_a0, phi_t1_ms, phi_a1_ms, r_ms
 
 
 # 応答係数（非住宅用　住宅との相違は固定根と重み付き最小二乗法を使用する点）
@@ -525,23 +526,24 @@ def _calc_response_factor_non_residential(C_i_k_p, R_i_k_p):
     AT0, AA0, AT, AA = _get_step_reps_of_wall_weighted(C_i_k_p=C_i_k_p, R_i_k_p=R_i_k_p, laps=laps, alp=alpha_m_temp, weight=0.0)
 
     # 二等辺三角波励振の応答係数の初項、指数項別応答係数、公比の計算
-    RFT0, RFA0, RFT1, RFA1, Row = _get_RFTRI(alpha_m_temp, AT0, AA0, AT, AA)
+    phi_t0, phi_a0, RFT1, RFA1, Row = _get_RFTRI(alpha_m_temp, AT0, AA0, AT, AA)
 
-    RFT1_12 = np.zeros(12)
-    RFA1_12 = np.zeros(12)
-    Row_12 = np.zeros(12)
+    phi_t1_ms = np.zeros(12)
+    phi_a1_ms = np.zeros(12)
+    r_ms = np.zeros(12)
     # RFT1_12[:len(RFT1)] = RFT1
     # RFA1_12[:len(RFA1)] = RFA1
     # Row_12[:len(Row)] = Row
     for i, alpha in enumerate(alpha_m):
         for j, alpha_temp in enumerate(alpha_m_temp):
             if alpha == alpha_temp:
-                RFT1_12[i] = RFT1[j]
-                RFA1_12[i] = RFA1[j]
-                Row_12[i] = Row[j]
+                phi_t1_ms[i] = RFT1[j]
+                phi_a1_ms[i] = RFA1[j]
+                r_ms[i] = Row[j]
 
-    return RFT0, RFA0, RFT1_12, RFA1_12, Row_12
+    return phi_t0, phi_a0, phi_t1_ms, phi_a1_ms, r_ms
 
+#        phi_t0, phi_a0, phi_t1_ms, phi_a1_ms, r_ms = _calc_response_factor_non_residential(C_i_k_p=cs, R_i_k_p=rs)
 
 if __name__ == '__main__':
 

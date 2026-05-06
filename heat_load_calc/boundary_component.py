@@ -54,12 +54,12 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
     @property
     def rfa0(self) -> float:
 
-        return self.rf.rfa0
+        return self.rf.phi_a0_js
     
     @property
     def rft0(self) -> float:
 
-        return self.rf.rft0
+        return self.rf.phi_t0_js
     
 
 @dataclass
@@ -134,11 +134,11 @@ class BoundaryComponents:
         
         else:
 
-            phi_a0_js = np.array([bcomp.rf.rfa0 for bcomp in bcomplist]).reshape(-1, 1)
-            phi_a1_js_ms = np.array([bcomp.rf.rfa1 for bcomp in bcomplist])
-            phi_t0_js = np.array([bcomp.rf.rft0 for bcomp in bcomplist]).reshape(-1, 1)
-            phi_t1_js_ms = np.array([bcomp.rf.rft1 for bcomp in bcomplist])
-            r_js_ms = np.array([bcomp.rf.row for bcomp in bcomplist])
+            phi_a0_js = np.array([bcomp.rf.phi_a0_js for bcomp in bcomplist]).reshape(-1, 1)
+            phi_a1_js_ms = np.array([bcomp.rf.phi_a1_js_ms for bcomp in bcomplist])
+            phi_t0_js = np.array([bcomp.rf.phi_t0_js for bcomp in bcomplist]).reshape(-1, 1)
+            phi_t1_js_ms = np.array([bcomp.rf.phi_t1_js_ms for bcomp in bcomplist])
+            r_js_ms = np.array([bcomp.rf.r_js_ms for bcomp in bcomplist])
             r_total_js = np.array([bcomp.rf.r_total for bcomp in bcomplist]).reshape(-1, 1)
 
         return BoundaryComponents(

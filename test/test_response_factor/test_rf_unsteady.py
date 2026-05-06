@@ -31,34 +31,34 @@ class MyTestCase(unittest.TestCase):
         rft: rf.ResponseFactor = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=0.04)
 
         # RFA0の確認
-        self.assertAlmostEqual(0.131894374315046, rft.rfa0)
+        self.assertAlmostEqual(0.131894374315046, rft.phi_a0_js)
 
         # RFT0の確認
-        self.assertAlmostEqual(0.00919200730794424, rft.rft0)
+        self.assertAlmostEqual(0.00919200730794424, rft.phi_t0_js)
 
         # 指数項別吸熱応答係数の確認
-        self.assertAlmostEqual(0.0, rft.rfa1[0])
-        self.assertAlmostEqual(4.62341804846976E-06, rft.rfa1[1])
-        self.assertAlmostEqual(-0.0000877861113610026, rft.rfa1[2])
-        self.assertAlmostEqual(0.00167266583241057, rft.rfa1[3])
-        self.assertAlmostEqual(0.00600860194589843, rft.rfa1[4])
-        self.assertAlmostEqual(-0.00763299915375227, rft.rfa1[5])
-        self.assertAlmostEqual(0.0132514747226216, rft.rfa1[6])
-        self.assertAlmostEqual(-0.014669996508621, rft.rfa1[7])
-        self.assertAlmostEqual(0, rft.rfa1[8])
-        self.assertAlmostEqual(0, rft.rfa1[9])
+        self.assertAlmostEqual(0.0, rft.phi_a1_js_ms[0])
+        self.assertAlmostEqual(4.62341804846976E-06, rft.phi_a1_js_ms[1])
+        self.assertAlmostEqual(-0.0000877861113610026, rft.phi_a1_js_ms[2])
+        self.assertAlmostEqual(0.00167266583241057, rft.phi_a1_js_ms[3])
+        self.assertAlmostEqual(0.00600860194589843, rft.phi_a1_js_ms[4])
+        self.assertAlmostEqual(-0.00763299915375227, rft.phi_a1_js_ms[5])
+        self.assertAlmostEqual(0.0132514747226216, rft.phi_a1_js_ms[6])
+        self.assertAlmostEqual(-0.014669996508621, rft.phi_a1_js_ms[7])
+        self.assertAlmostEqual(0, rft.phi_a1_js_ms[8])
+        self.assertAlmostEqual(0, rft.phi_a1_js_ms[9])
 
         # 指数項別貫流応答係数の確認
-        self.assertAlmostEqual(0, rft.rft1[0])
-        self.assertAlmostEqual(1.51248674815152E-06, rft.rft1[1])
-        self.assertAlmostEqual(-0.0000288108426770223, rft.rft1[2])
-        self.assertAlmostEqual(0.000552622176487144, rft.rft1[3])
-        self.assertAlmostEqual(0.00201321289248952, rft.rft1[4])
-        self.assertAlmostEqual(-0.00264180310462295, rft.rft1[5])
-        self.assertAlmostEqual(0.0050110788052605, rft.rft1[6])
-        self.assertAlmostEqual(-0.007705708703831, rft.rft1[7])
-        self.assertAlmostEqual(0, rft.rft1[8])
-        self.assertAlmostEqual(0, rft.rft1[9])
+        self.assertAlmostEqual(0, rft.phi_t1_js_ms[0])
+        self.assertAlmostEqual(1.51248674815152E-06, rft.phi_t1_js_ms[1])
+        self.assertAlmostEqual(-0.0000288108426770223, rft.phi_t1_js_ms[2])
+        self.assertAlmostEqual(0.000552622176487144, rft.phi_t1_js_ms[3])
+        self.assertAlmostEqual(0.00201321289248952, rft.phi_t1_js_ms[4])
+        self.assertAlmostEqual(-0.00264180310462295, rft.phi_t1_js_ms[5])
+        self.assertAlmostEqual(0.0050110788052605, rft.phi_t1_js_ms[6])
+        self.assertAlmostEqual(-0.007705708703831, rft.phi_t1_js_ms[7])
+        self.assertAlmostEqual(0, rft.phi_t1_js_ms[8])
+        self.assertAlmostEqual(0, rft.phi_t1_js_ms[9])
 
     def test_rf_ground_part(self):
         """
@@ -81,34 +81,34 @@ class MyTestCase(unittest.TestCase):
         rft = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
 
         # RFA0の確認
-        self.assertAlmostEqual(0.7153374350138639, rft.rfa0)
+        self.assertAlmostEqual(0.7153374350138639, rft.phi_a0_js)
 
         # RFT0の確認
-        self.assertAlmostEqual(1.0, rft.rft0)
+        self.assertAlmostEqual(1.0, rft.phi_t0_js)
 
         # 指数項別吸熱応答係数の確認
-        self.assertAlmostEqual(-4.932291953561631e-07, rft.rfa1[0])
-        self.assertAlmostEqual(1.1848402120231172e-05, rft.rfa1[1])
-        self.assertAlmostEqual(0.00022864847810913559, rft.rfa1[2])
-        self.assertAlmostEqual(-0.00014609989062409255, rft.rfa1[3])
-        self.assertAlmostEqual(0.0005463330720022236, rft.rfa1[4])
-        self.assertAlmostEqual(-0.00032414830484532136, rft.rfa1[5])
-        self.assertAlmostEqual(0.0013791568569407097, rft.rfa1[6])
-        self.assertAlmostEqual(0.0019867700951619544, rft.rfa1[7])
-        self.assertAlmostEqual(-0.014622509832519151, rft.rfa1[8])
-        self.assertAlmostEqual(0.07659670581003312, rft.rfa1[9])
+        self.assertAlmostEqual(-4.932291953561631e-07, rft.phi_a1_js_ms[0])
+        self.assertAlmostEqual(1.1848402120231172e-05, rft.phi_a1_js_ms[1])
+        self.assertAlmostEqual(0.00022864847810913559, rft.phi_a1_js_ms[2])
+        self.assertAlmostEqual(-0.00014609989062409255, rft.phi_a1_js_ms[3])
+        self.assertAlmostEqual(0.0005463330720022236, rft.phi_a1_js_ms[4])
+        self.assertAlmostEqual(-0.00032414830484532136, rft.phi_a1_js_ms[5])
+        self.assertAlmostEqual(0.0013791568569407097, rft.phi_a1_js_ms[6])
+        self.assertAlmostEqual(0.0019867700951619544, rft.phi_a1_js_ms[7])
+        self.assertAlmostEqual(-0.014622509832519151, rft.phi_a1_js_ms[8])
+        self.assertAlmostEqual(0.07659670581003312, rft.phi_a1_js_ms[9])
 
         # 指数項別貫流応答係数の確認
-        self.assertAlmostEqual(0.0, rft.rft1[0])
-        self.assertAlmostEqual(0.0, rft.rft1[1])
-        self.assertAlmostEqual(0.0, rft.rft1[2])
-        self.assertAlmostEqual(0.0, rft.rft1[3])
-        self.assertAlmostEqual(0.0, rft.rft1[4])
-        self.assertAlmostEqual(0.0, rft.rft1[5])
-        self.assertAlmostEqual(0.0, rft.rft1[6])
-        self.assertAlmostEqual(0.0, rft.rft1[7])
-        self.assertAlmostEqual(0.0, rft.rft1[8])
-        self.assertAlmostEqual(0.0, rft.rft1[9])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[0])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[1])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[2])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[3])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[4])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[5])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[6])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[7])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[8])
+        self.assertAlmostEqual(0.0, rft.phi_t1_js_ms[9])
 
 
 if __name__ == '__main__':
