@@ -679,16 +679,16 @@ class TestBoundaries(unittest.TestCase):
         # long wave emissivity of internal surface of boundary, -
         np.testing.assert_equal(_get_eps_r_i_js(), self._bs.eps_r_i_js)
 
-    def test_phi_a0_js(self):
+    def test_f_fi_js(self):
 
         bcomps = _get_bcomps()
-        np.testing.assert_equal(bcomps.phi_a0_js, self._bs.phi_a0_js)
+        np.testing.assert_equal(bcomps.f_fi_js, self._bs.f_fi_js)
     
-    def test_phi_t0_js(self):
+    def test_f_fo_js(self):
 
         bcomps = _get_bcomps()
-        np.testing.assert_equal(bcomps.phi_t0_js, self._bs.phi_t0_js)
-    
+        np.testing.assert_equal(bcomps.f_fo_js, self._bs.f_fo_js)
+
     def test_o_eqv_js_nspls(self):
 
         window_js = _get_window_js()
@@ -894,8 +894,15 @@ def _get_bcomps() -> BoundaryComponents:
 
     id_js = np.array([1,3,5,7,9,11,13,15,17,19,21,23,25,27]).reshape(-1, 1)
 
+    h_s_js = h_s_c_js + h_s_r_js
+    
+    bcomplist = [
+        boundaries.Boundary._get_boundary_component(ipt_boundary=ipt_boundary, id_js=id_js, h_s_js=h_s_js, i=i)
+        for i, ipt_boundary in enumerate(ipt_boundaries)
+    ]
+
     return BoundaryComponents.create(
-        bcomplist=[boundaries.Boundary._get_boundary_component(ipt_boundary=ipt_boundary, h_s_c_js=h_s_c_js, h_s_r_js=h_s_r_js, id_js=id_js) for ipt_boundary in ipt_boundaries]
+        bcomplist=bcomplist
     )
 
 def _get_p_is_js():

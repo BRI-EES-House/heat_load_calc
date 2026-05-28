@@ -109,7 +109,7 @@ class Sequence:
         f_wsr_js_is = bs.f_wsr_js_is
 
         # f_{WSC, n}, degree C, [J, N]
-        f_wsc_js_ns = bs.get_f_wsc_js_ns(f_ax_js_js=f_ax_js_js, q_s_sol_js_ns=q_s_sol_js_ns)
+        f_wsc_js_ns = bs.get_f_wsc_js_ns(q_s_sol_js_ns=q_s_sol_js_ns)
 
         # ステップnにおける室iの在室者表面における対流熱伝達率の総合熱伝達率に対する比, -, [i, 1]
         # ステップ n における室 i の在室者表面における放射熱伝達率の総合熱伝達率に対する比, -, [i, 1]
@@ -852,9 +852,9 @@ class Sequence:
                 theta_s_js=theta_s_js_n_pls,
                 theta_rear_js=theta_rear_js_n_pls,
                 f_cvl_js=f_cvl_js_n_pls,
-                q_i_s_js=q_s_js_n_pls,
-                phi_a0_js=self.bs.phi_a0_js,
-                phi_t0_js=self.bs.phi_t0_js
+                f_fi_js=self.bs.f_fi_js,
+                f_fo_js=self.bs.f_fo_js,
+                theta_ei_js_n_pls=theta_ei_js_n_pls
             )
 
         if recorder is not None:
@@ -909,19 +909,15 @@ class Sequence:
 
         bcs_js_n = gc_n.bcs_js_n
 
-        bcs_js_n_pls = self.bs.bcomps_ground._get_next_boundary_components_status(
+        bcs_js_n_pls = self.bs.get_next_boundary_components_status_ground(
             bcs_js_n=bcs_js_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=gc_n.q_srf_js_n
         )
 
-        f_cvl_js_n_pls = self.bs.bcomps_ground._get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
+        f_cvl_js_n_pls = self.bs.get_f_cvl_ground_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
 
-        theta_s_js_npls = (
-            self.bs.bcomps_ground.phi_a0_js * h_i_js * self.weather.theta_o_ns_plus[n+1]
-            + self.bs.bcomps_ground.phi_t0_js * theta_rear_js_npls
-            + f_cvl_js_n_pls
-        ) / (1.0 + self.bs.bcomps_ground.phi_a0_js * h_i_js)
+        theta_s_js_npls = self.bs.bcomps_ground.f_fi_js * self.weather.theta_o_ns_plus[n+1] + self.bs.bcomps_ground.f_fo_js * theta_rear_js_npls + f_cvl_js_n_pls
 
         q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
 
@@ -1237,31 +1233,23 @@ def test_theta_surface(
     theta_s_js: np.ndarray,
     theta_rear_js: np.ndarray,
     f_cvl_js: np.ndarray,
-    q_i_s_js: np.ndarray,
-    phi_a0_js: np.ndarray,
-    phi_t0_js: np.ndarray
+    f_fi_js: np.ndarray,
+    f_fo_js: np.ndarray,
+    theta_ei_js_n_pls: np.ndarray
 ):
-    """
-    test_theta_surface の Docstring
-    表面温度の計算結果のテスト
-    
-    :param theta_s_js: 表面温度, degree C, [j, 1]
-    :type theta_s_js: np.ndarray
-    :param theta_rear_js: 裏面温度, degree C, [j, 1]
-    :type theta_rear_js: np.ndarray
-    :param f_cvl_js: 係数 f_{CVL}, -, [j, 1]
-    :type f_cvl_js: np.ndarray
-    :param q_i_s_js: 室内表面熱流, W/m2, [j, 1]
-    :type q_i_s_js: np.ndarray
-    :param phi_a0_js: 吸熱応答の初項, m2 K/W, [j, 1]
-    :type phi_a0_js: np.ndarray
-    :param phi_t0_js: 貫流応答の初項, -, [j, 1]
-    :type phi_t0_js: np.ndarray
+    """test for surface temperature
+
+    Args:
+        theta_s_js: surface temperature, deg.C, [J, 1]
+        theta_rear_js: rear surface temperature, deg.C, [J, 1]
+        f_cvl_js: coefficient f_CVL, -, [J, 1]
+        f_fi_js: coefficient f_FI, -, [J, 1]
+        f_fo_js: coefficient f_FO, -, [J, 1]
+        theta_ei_js_n_pls: equivalent air temperature of the surface, deg.C, [J, 1]
     """
 
-    # 表面温度
     left = theta_s_js
-    right = phi_a0_js * q_i_s_js + phi_t0_js * theta_rear_js + f_cvl_js
+    right = f_fi_js * theta_ei_js_n_pls + f_fo_js * theta_rear_js + f_cvl_js
     test_balance_check(left=left, right=right, quantity="surface temperature")
 
 

@@ -24,27 +24,41 @@ class BoundaryComponent(ABC):
 class BoundaryComponentResponseFactor(BoundaryComponent):
 
     rf: ResponseFactor
+    f_fi: float
+    f_fo: float
 
     @classmethod
-    def create_for_unsteady_not_ground(cls, cs, rs, r_o):
+    def create(cls, rf: ResponseFactor, h_s: float):
+
+        f_fi = rf.phi_a0_js * h_s / (1 + rf.phi_a0_js * h_s)
+        f_fo = rf.phi_t0_js / (1 + rf.phi_a0_js * h_s)  
+
+        return BoundaryComponentResponseFactor(
+            rf=rf,
+            f_fi=f_fi,
+            f_fo=f_fo
+        )
+
+    @classmethod
+    def create_for_unsteady_not_ground(cls, cs, rs, r_o, h_s):
 
         rf = ResponseFactor.create_for_unsteady_not_ground(cs=cs, rs=rs, r_o=r_o)
 
-        return BoundaryComponentResponseFactor(rf=rf)
+        return cls.create(rf=rf, h_s=h_s)
     
     @classmethod
-    def create_for_unsteady_ground(cls, cs, rs):
+    def create_for_unsteady_ground(cls, cs, rs, h_s):
 
         rf = ResponseFactor.create_for_unsteady_ground(cs=cs, rs=rs)
 
-        return BoundaryComponentResponseFactor(rf=rf)
+        return cls.create(rf=rf, h_s=h_s)
     
     @classmethod
-    def create_for_steady(cls, u_w, r_i):
+    def create_for_steady(cls, u_w, r_i, h_s):
         
         rf = ResponseFactor.create_for_steady(u_w=u_w, r_i=r_i)
 
-        return BoundaryComponentResponseFactor(rf=rf)
+        return cls.create(rf=rf, h_s=h_s)
     
     @property
     def r_total(self) -> float:
@@ -119,6 +133,9 @@ class BoundaryComponents:
 
     r_total_js: np.ndarray
 
+    f_fi_js: np.ndarray
+
+    f_fo_js: np.ndarray
 
     @classmethod
     def create(cls, bcomplist: list[BoundaryComponentResponseFactor]):
@@ -131,6 +148,8 @@ class BoundaryComponents:
             phi_t1_js_ms = np.zeros(shape=(0,12))
             r_js_ms = np.zeros(shape=(0,12))
             r_total_js = np.zeros(shape=(0,1))
+            f_fi_js = np.zeros(shape=(0,1))
+            f_fo_js = np.zeros(shape=(0,1))
         
         else:
 
@@ -140,6 +159,8 @@ class BoundaryComponents:
             phi_t1_js_ms = np.array([bcomp.rf.phi_t1_js_ms for bcomp in bcomplist])
             r_js_ms = np.array([bcomp.rf.r_js_ms for bcomp in bcomplist])
             r_total_js = np.array([bcomp.rf.r_total for bcomp in bcomplist]).reshape(-1, 1)
+            f_fi_js = np.array([bcomp.f_fi for bcomp in bcomplist]).reshape(-1, 1)
+            f_fo_js = np.array([bcomp.f_fo for bcomp in bcomplist]).reshape(-1, 1)
 
         return BoundaryComponents(
             phi_a0_js=phi_a0_js,
@@ -147,7 +168,9 @@ class BoundaryComponents:
             phi_t0_js=phi_t0_js,
             phi_t1_js_ms=phi_t1_js_ms,
             r_js_ms=r_js_ms,
-            r_total_js=r_total_js
+            r_total_js=r_total_js,
+            f_fi_js=f_fi_js,
+            f_fo_js=f_fo_js
         )
 
     def _get_next_boundary_components_status(
@@ -234,18 +257,21 @@ class BoundaryComponents:
         # return theta_dsh_s_a_js_ms_n_pls
         return self.phi_a1_js_ms * q_s_js_n + self.r_js_ms * theta_dsh_srf_a_js_ms_n
 
-    def _get_f_cvl_js_n_pls(self, bcs_js_n_pls: BoundaryComponentsStatus):
+    def _get_f_cvl_js_n_pls(self, bcs_js_n_pls: BoundaryComponentsStatus, h_s_js: np.ndarray):
         """
 
         Args:
             bcs_js_n_pls: BoundaryComponentsStatus
 
         Returns:
-            ステップ n+1 における係数 f_CVL, degree C, [j, 1]
+            ステップ n+1 における係数 f_CVL, degree C, [J, 1]
         Notes:
             式(2.28)
         """
-        return np.sum(bcs_js_n_pls.theta_dsh_s_t_js_ms + bcs_js_n_pls.theta_dsh_s_a_js_ms, axis=1, keepdims=True)
+
+        phi_a0_js = self.phi_a0_js
+
+        return np.sum(bcs_js_n_pls.theta_dsh_s_t_js_ms + bcs_js_n_pls.theta_dsh_s_a_js_ms, axis=1, keepdims=True) / (1 + phi_a0_js * h_s_js)
 
     def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
 
