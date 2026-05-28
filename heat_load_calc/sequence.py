@@ -357,13 +357,15 @@ class Sequence:
             v_r_is=self.rms.v_r_is
         )
 
-        # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
-        # Boundary Component Status as step n+1
-        f_cvl_js_n_pls, bcs_n_pls = self.bs.get_f_cvl_js_n_pls(
-            bcs_js_n= c_n.bcs_n,
+        bcs_js_n_pls = self.bs.get_next_boundary_components_status(
+            bcs_js_n=c_n.bcs_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=c_n.q_s_js_n
         )
+
+        # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
+        # Boundary Component Status as step n+1
+        f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
 
         # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
         f_wsv_js_n_pls = get_f_wsv_js_n_pls(
@@ -892,7 +894,7 @@ class Sequence:
             theta_frt_is_n=theta_frt_is_n_pls,
             x_frt_is_n=x_frt_is_n_pls,
             theta_ei_js_n=theta_ei_js_n_pls,
-            bcs_n=bcs_n_pls
+            bcs_n=bcs_js_n_pls
         )
 
 
@@ -902,24 +904,23 @@ class Sequence:
 
         theta_o_eqv_js_ns = self.bs.theta_o_eqv_js_nspls[is_ground, :]
 
-        theta_rear_js_n = self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n]]
         theta_rear_js_npls = self.bs.k_eo_js[is_ground, :] * theta_o_eqv_js_ns[:, [n+1]]
 
         h_i_js = self.bs.h_s_r_js[is_ground, :] + self.bs.h_s_c_js[is_ground, :]
 
         bcs_js_n = gc_n.bcs_js_n
 
-        bcs_js_n_pls = self.bs.get_next_boundary_components_status_ground(
-            bcs_js_n=bcs_js_n,
-            theta_rear_js_n=theta_rear_js_n,
-            q_s_js_n=gc_n.q_srf_js_n
-        )
-
-        f_cvl_js_n_pls = self.bs.get_f_cvl_ground_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
+        f_cvl_js_n_pls = self.bs.get_f_cvl_ground_js_n_pls(bcs_js_n_pls=bcs_js_n)
 
         theta_s_js_npls = self.bs.bcomps_ground.f_fi_js * self.weather.theta_o_ns_plus[n+1] + self.bs.bcomps_ground.f_fo_js * theta_rear_js_npls + f_cvl_js_n_pls
 
         q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
+
+        bcs_js_n_pls = self.bs.get_next_boundary_components_status_ground(
+            bcs_js_n=bcs_js_n,
+            theta_rear_js_n=theta_rear_js_npls,
+            q_s_js_n=q_srf_js_n
+        )
 
         return GroundConditions(
             q_srf_js_n=q_srf_js_n,

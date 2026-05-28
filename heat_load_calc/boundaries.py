@@ -853,12 +853,12 @@ class Boundaries:
             f_fo_js=self.f_fo_js
         )
 
-    def get_f_cvl_js_n_pls(
+    def get_next_boundary_components_status(
             self,
             bcs_js_n: BoundaryComponentsStatus,
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
-        ) -> tuple[np.ndarray, BoundaryComponentsStatus]:
+        ) -> BoundaryComponentsStatus:
         """
 
         Args:
@@ -867,27 +867,46 @@ class Boundaries:
             q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [J, 1]
 
         Returns:
+            boundary components status at step n+1
+        """
+
+        return self.bcomps._get_next_boundary_components_status(
+            bcs_js_n=bcs_js_n,
+            theta_rear_js_n=theta_rear_js_n,
+            q_s_js_n=q_s_js_n
+        )
+            
+    def get_f_cvl_js_n_pls(
+            self,
+            bcs_js_n_pls: BoundaryComponentsStatus
+        ) -> np.ndarray:
+        """
+
+        Args:
+            bcs_js_n_pls: boundary components status at step n+1
+
+        Returns:
             ステップ n+1 における係数 f_CVL, degree C, [J, 1]
         Notes:
             式(2.28)
         """
 
-        bcs_js_n_pls = self.bcomps._get_next_boundary_components_status(
-            bcs_js_n=bcs_js_n,
-            theta_rear_js_n=theta_rear_js_n,
-            q_s_js_n=q_s_js_n
-        )
+        #bcs_js_n_pls = self.bcomps._get_next_boundary_components_status(
+        #    bcs_js_n=bcs_js_n,
+        #    theta_rear_js_n=theta_rear_js_n,
+        #    q_s_js_n=q_s_js_n
+        #)
 
         f_cvl_js_n_pls = self.bcomps._get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls, h_s_js=self.h_s_js)
 
-        return f_cvl_js_n_pls, bcs_js_n_pls
+        return f_cvl_js_n_pls
 
     def get_next_boundary_components_status_ground(
             self,
             bcs_js_n: BoundaryComponentsStatus,
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
-        ) -> tuple[np.ndarray, BoundaryComponentsStatus]:
+        ) -> BoundaryComponentsStatus:
         """
         Args:
             bcs_js_n: boundary components status at step n
