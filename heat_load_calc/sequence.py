@@ -340,16 +340,6 @@ class Sequence:
 
         # endregion
 
-        # ステップ n の境界 j における裏面温度, degree C, [j, 1]
-        theta_rear_js_n = get_theta_s_rear_js_n(
-            k_s_er_js_js=self.bs.k_ei_js_js,
-            theta_er_js_n=c_n.theta_ei_js_n,
-            k_s_eo_js=self.bs.k_eo_js,
-            theta_eo_js_n=self.bs.theta_o_eqv_js_nspls[:, n].reshape(-1, 1),
-            k_s_r_js_is=self.bs.k_s_r_js_is,
-            theta_r_is_n=c_n.theta_r_is_n
-        )
-
         # ステップnの室iにおけるすきま風量, m3/s, [i, 1]
         v_leak_is_n = self.building.get_v_leak_is_n(
             theta_r_is_n=c_n.theta_r_is_n,
@@ -357,15 +347,9 @@ class Sequence:
             v_r_is=self.rms.v_r_is
         )
 
-        bcs_js_n_pls = self.bs.get_next_boundary_components_status(
-            bcs_js_n=c_n.bcs_n,
-            theta_rear_js_n=theta_rear_js_n,
-            q_s_js_n=c_n.q_s_js_n
-        )
-
         # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
         # Boundary Component Status as step n+1
-        f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls)
+        f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(bcs_js_n_pls=c_n.bcs_n)
 
         # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
         f_wsv_js_n_pls = get_f_wsv_js_n_pls(
@@ -760,6 +744,22 @@ class Sequence:
             g_lh_frt_is=self.rms.g_lh_frt_is,
             x_frt_is_n=c_n.x_frt_is_n,
             x_r_is_n_pls=x_r_is_n_pls
+        )
+
+        # ステップ n の境界 j における裏面温度, degree C, [j, 1]
+        theta_rear_js_n = get_theta_s_rear_js_n(
+            k_s_er_js_js=self.bs.k_ei_js_js,
+            theta_er_js_n=theta_ei_js_n_pls,
+            k_s_eo_js=self.bs.k_eo_js,
+            theta_eo_js_n=self.bs.theta_o_eqv_js_nspls[:, n+1].reshape(-1, 1),
+            k_s_r_js_is=self.bs.k_s_r_js_is,
+            theta_r_is_n=theta_r_is_n_pls
+        )
+
+        bcs_js_n_pls = self.bs.get_next_boundary_components_status(
+            bcs_js_n=c_n.bcs_n,
+            theta_rear_js_n=theta_rear_js_n,
+            q_s_js_n=q_s_js_n_pls
         )
 
         if exe_verify:
