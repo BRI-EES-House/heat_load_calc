@@ -104,9 +104,9 @@
     "mechanical_ventilations": [
         {
             "id": 0,
-            "root_type": "type3",
+            "route_type": "type3",
             "volume": 0.5,
-            "root": [
+            "route": [
                 0
             ]
         }

@@ -12,9 +12,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'type1',
+                    'route_type': 'type1',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -32,9 +32,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'type2',
+                    'route_type': 'type2',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -52,9 +52,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'type3',
+                    'route_type': 'type3',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -72,9 +72,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'natural_loop',
+                    'route_type': 'natural_loop',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -92,9 +92,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'type1',
+                    'route_type': 'type1',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -118,9 +118,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'type2',
+                    'route_type': 'type2',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -144,9 +144,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'type3',
+                    'route_type': 'type3',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3
@@ -170,9 +170,9 @@ class TestMechanicalVentilations(unittest.TestCase):
             ds=[
                 {
                     'id': 0,
-                    'root_type': 'natural_loop',
+                    'route_type': 'natural_loop',
                     'volume': 30.0,
-                    'root': [0, 1, 2]
+                    'route': [0, 1, 2]
                 }
             ],
             n_rm=3

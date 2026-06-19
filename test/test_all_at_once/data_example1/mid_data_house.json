@@ -2107,18 +2107,18 @@
     "mechanical_ventilations": [
         {
             "id": 0,
-            "root_type": "type3",
+            "route_type": "type3",
             "volume": 60.0,
-            "root": [
+            "route": [
                 0,
                 2
             ]
         },
         {
             "id": 1,
-            "root_type": "type3",
+            "route_type": "type3",
             "volume": 100.0,
-            "root": [
+            "route": [
                 1,
                 2
             ]
