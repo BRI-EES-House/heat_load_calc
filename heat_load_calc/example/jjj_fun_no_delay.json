@@ -5013,9 +5013,9 @@
   "mechanical_ventilations": [
 	{
 		"id": 0,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 20.0,
-		"root": [
+		"route": [
 			7,
 			8,
 			11
@@ -5023,18 +5023,18 @@
 	},
 	{
 		"id": 1,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 20.0,
-		"root": [
+		"route": [
 			8,
 			11
 		]
 	},
 	{
 		"id": 2,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 20.0,
-		"root": [
+		"route": [
 			9,
 			11,
 			13
@@ -5042,9 +5042,9 @@
 	},
 	{
 		"id": 3,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 20.0,
-		"root": [
+		"route": [
 			10,
 			11,
 			13
@@ -5052,27 +5052,27 @@
 	},
 	{
 		"id": 4,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 20.0,
-		"root": [
+		"route": [
 			0,
 			6
 		]
 	},
 	{
 		"id": 5,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 6.67,
-		"root": [
+		"route": [
 			1,
 			6
 		]
 	},
 	{
 		"id": 6,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 26.67,
-		"root": [
+		"route": [
 			1,
 			6,
 			5
@@ -5080,9 +5080,9 @@
 	},
 	{
 		"id": 7,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 6.66,
-		"root": [
+		"route": [
 			1,
 			6,
 			4
@@ -5090,9 +5090,9 @@
 	},
 	{
 		"id": 8,
-		"root_type": "type3",
+		"route_type": "type3",
 		"volume": 20,
-		"root": [
+		"route": [
 			2,
 			1,
 			6,
@@ -5101,18 +5101,18 @@
 	},
     {
         "id": 9,
-        "root_type": "natural_loop",
+        "route_type": "natural_loop",
         "volume": 5000.0,
-        "root": [
+        "route": [
             1,
             2
         ]
     },
     {
         "id": 10,
-        "root_type": "natural_loop",
+        "route_type": "natural_loop",
         "volume": 273,
-        "root": [
+        "route": [
             6,
             11
         ]
