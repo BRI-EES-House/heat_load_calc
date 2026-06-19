@@ -36,9 +36,9 @@ class MechanicalVentilations:
         self._mechanical_ventilations = [
             MechanicalVentilation(
                 id=d['id'],
-                root_type=VentilationType(d['root_type']),
+                root_type=VentilationType(d['route_type']),
                 volume=d['volume'],
-                root=d['root']
+                root=d['route']
             )
             for d in ds
         ]
