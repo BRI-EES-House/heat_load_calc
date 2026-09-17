@@ -891,13 +891,12 @@ class Boundaries:
             式(2.28)
         """
 
-        #bcs_js_n_pls = self.bcomps._get_next_boundary_components_status(
-        #    bcs_js_n=bcs_js_n,
-        #    theta_rear_js_n=theta_rear_js_n,
-        #    q_s_js_n=q_s_js_n
-        #)
+        bcomps: BoundaryComponents = self.bcomps
 
-        f_cvl_js_n_pls = self.bcomps._get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls, h_s_js=self.h_s_js)
+        f_cvl_js_n_pls = np.zeros((self.n_b, 1), dtype=float)
+
+        for j, bcomp in enumerate(bcomps.bcomplist):
+            f_cvl_js_n_pls[j, 0] = bcomp.get_f_cvl_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=self.h_s_js[j])
 
         return f_cvl_js_n_pls
 
@@ -943,7 +942,12 @@ class Boundaries:
 
         is_ground = self.b_ground_js.flatten()
 
-        f_cvl_js_n_pls = self.bcomps_ground._get_f_cvl_js_n_pls(bcs_js_n_pls=bcs_js_n_pls, h_s_js=self.h_s_js[is_ground])
+        h_s_js_ground = self.h_s_js[is_ground, :]
+
+        f_cvl_js_n_pls = np.zeros((self.n_ground, 1), dtype=float)
+
+        for j, bcomp in enumerate(self.bcomps_ground.bcomplist):
+            f_cvl_js_n_pls[j, 0] = bcomp.get_f_cvl_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=h_s_js_ground[j])
 
         return f_cvl_js_n_pls
 

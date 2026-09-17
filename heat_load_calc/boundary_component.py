@@ -74,6 +74,22 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
     def rft0(self) -> float:
 
         return self.rf.phi_t0_js
+
+    def get_f_cvl_j_n_pls(self, bcs_j_n_pls: BoundaryComponentsStatus, j: int, h_s_j: float) -> float:
+        """
+
+        Args:
+            bcs_j_n_pls: BoundaryComponentsStatus
+            j: 境界番号
+            h_s_j: 境界 j の表面熱伝達率, W/m2K
+
+        Returns:
+            ステップ n+1 における係数 f_CVL, degree C, [J, 1]
+        Notes:
+            式(2.28)
+        """
+
+        return (sum(bcs_j_n_pls.theta_dsh_s_a_js_ms[j]) + sum(bcs_j_n_pls.theta_dsh_s_t_js_ms[j]))/(1 + self.rf.phi_a0_js * h_s_j)
     
 
 @dataclass
@@ -137,6 +153,8 @@ class BoundaryComponents:
 
     f_fo_js: np.ndarray
 
+    bcomplist: list[BoundaryComponentResponseFactor]
+
     @classmethod
     def create(cls, bcomplist: list[BoundaryComponentResponseFactor]):
 
@@ -170,7 +188,8 @@ class BoundaryComponents:
             r_js_ms=r_js_ms,
             r_total_js=r_total_js,
             f_fi_js=f_fi_js,
-            f_fo_js=f_fo_js
+            f_fo_js=f_fo_js,
+            bcomplist=bcomplist
         )
 
     def _get_next_boundary_components_status(
@@ -209,20 +228,6 @@ class BoundaryComponents:
             式(2.30)
         """
 
-        # theta_dsh_s_t_js_ms_n_pls = np.zeros_like(theta_dsh_srf_t_js_ms_n)
-
-        # for j in range(theta_dsh_srf_t_js_ms_n.shape[0]):
-
-        #     phi_t1_j_ms = phi_t1_js_ms[j]
-        #     r_j_ms = r_js_ms[j]
-        #     theta_dsh_srf_t_j_ms_n = theta_dsh_srf_t_js_ms_n[j]
-        #     theta_rear_j_n = theta_rear_js_n[j]
-
-        #     theta_dsh_s_t_j_ms_n_pls = phi_t1_j_ms * theta_rear_j_n + r_j_ms * theta_dsh_srf_t_j_ms_n
-
-        #     theta_dsh_s_t_js_ms_n_pls[j] =theta_dsh_s_t_j_ms_n_pls
-
-        # return theta_dsh_s_t_js_ms_n_pls
         return self.phi_t1_js_ms * theta_rear_js_n + self.r_js_ms * theta_dsh_srf_t_js_ms_n
 
     def _get_theta_dsh_s_a_js_ms_n_pls(self, q_s_js_n, theta_dsh_srf_a_js_ms_n):
@@ -241,37 +246,7 @@ class BoundaryComponents:
             式(2.29)
         """
 
-        # theta_dsh_s_a_js_ms_n_pls = np.zeros_like(theta_dsh_srf_a_js_ms_n)
-
-        # for j in range(theta_dsh_srf_a_js_ms_n.shape[0]):
-
-        #     phi_a1_j_ms = phi_a1_js_ms[j]
-        #     q_s_j_n = q_s_js_n[j]
-        #     r_j_ms = r_js_ms[j]
-        #     theta_dsh_srf_a_j_ms_n = theta_dsh_srf_a_js_ms_n[j]
-
-        #     theta_dsh_s_a_j_ms_n_pls = phi_a1_j_ms * q_s_j_n + r_j_ms * theta_dsh_srf_a_j_ms_n
-
-        #     theta_dsh_s_a_js_ms_n_pls[j] = theta_dsh_s_a_j_ms_n_pls
-
-        # return theta_dsh_s_a_js_ms_n_pls
         return self.phi_a1_js_ms * q_s_js_n + self.r_js_ms * theta_dsh_srf_a_js_ms_n
-
-    def _get_f_cvl_js_n_pls(self, bcs_js_n_pls: BoundaryComponentsStatus, h_s_js: np.ndarray):
-        """
-
-        Args:
-            bcs_js_n_pls: BoundaryComponentsStatus
-
-        Returns:
-            ステップ n+1 における係数 f_CVL, degree C, [J, 1]
-        Notes:
-            式(2.28)
-        """
-
-        phi_a0_js = self.phi_a0_js
-
-        return np.sum(bcs_js_n_pls.theta_dsh_s_t_js_ms + bcs_js_n_pls.theta_dsh_s_a_js_ms, axis=1, keepdims=True) / (1 + phi_a0_js * h_s_js)
 
     def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
 

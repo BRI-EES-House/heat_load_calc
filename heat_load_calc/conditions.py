@@ -63,7 +63,7 @@ class Conditions:
     theta_ei_js_n: np.ndarray
 
     # Boundary component status
-    bcs_n: GroundConditions
+    bcs_n: BoundaryComponentsStatus
 
     @classmethod
     def initialize_conditions(cls, n_r: int, n_b: int, is_ground: np.array, gc_n: GroundConditions):
