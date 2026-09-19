@@ -75,7 +75,7 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
 
         return self.rf.phi_t0_js
 
-    def get_f_cvl_j_n_pls(self, bcs_j_n_pls: BoundaryComponentsStatus, j: int, h_s_j: float) -> float:
+    def get_f_cf_j_n_pls(self, bcs_j_n_pls: BoundaryComponentsStatus, j: int, h_s_j: float) -> float:
         """
 
         Args:
@@ -84,12 +84,13 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
             h_s_j: 境界 j の表面熱伝達率, W/m2K
 
         Returns:
-            ステップ n+1 における係数 f_CVL, degree C, [J, 1]
+            ステップ n+1 における係数 f_CF, degree C, [J, 1]
         Notes:
             式(2.28)
         """
 
-        return (sum(bcs_j_n_pls.theta_dsh_s_a_js_ms[j]) + sum(bcs_j_n_pls.theta_dsh_s_t_js_ms[j]))/(1 + self.rf.phi_a0_js * h_s_j)
+        #return (sum(bcs_j_n_pls.theta_dsh_s_a_js_ms[j]) + sum(bcs_j_n_pls.theta_dsh_s_t_js_ms[j]))/(1 + self.rf.phi_a0_js * h_s_j)
+        return (sum(bcs_j_n_pls.get_theta_dsh_s_a_j_ms(j)) + sum(bcs_j_n_pls.get_theta_dsh_s_t_j_ms(j)))/(1 + self.rf.phi_a0_js * h_s_j)
     
 
 @dataclass
@@ -124,6 +125,14 @@ class BoundaryComponentsStatus:
             theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms,
             theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms
         )
+
+    def get_theta_dsh_s_t_j_ms(self, j: int) -> np.ndarray:
+
+        return self.theta_dsh_s_t_js_ms[j, :]
+
+    def get_theta_dsh_s_a_j_ms(self, j: int) -> np.ndarray:
+        
+        return self.theta_dsh_s_a_js_ms[j, :]
 
 @dataclass
 class BoundaryComponents:
@@ -198,16 +207,25 @@ class BoundaryComponents:
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
     ):
-        
-        theta_dsh_srf_t_js_ms_n_pls = self._get_theta_dsh_s_t_js_ms_n_pls(
-            theta_dsh_srf_t_js_ms_n=bcs_js_n.theta_dsh_s_t_js_ms,
-            theta_rear_js_n=theta_rear_js_n
-        )
 
-        theta_dsh_srf_a_js_ms_n_pls = self._get_theta_dsh_s_a_js_ms_n_pls(
-            q_s_js_n=q_s_js_n,
-            theta_dsh_srf_a_js_ms_n=bcs_js_n.theta_dsh_s_a_js_ms
-        )
+        n_j = len(theta_rear_js_n)
+
+        theta_dsh_srf_t_js_ms_n_pls = np.zeros((n_j, 12))
+        theta_dsh_srf_a_js_ms_n_pls = np.zeros((n_j, 12))
+
+        for j in range(n_j):
+            theta_dsh_srf_t_js_ms_n_pls[j,:] = self.phi_t1_js_ms[j, :] * theta_rear_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.theta_dsh_s_t_js_ms[j, :]
+            theta_dsh_srf_a_js_ms_n_pls[j,:] = self.phi_a1_js_ms[j, :] * q_s_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.theta_dsh_s_a_js_ms[j, :]
+        
+        #theta_dsh_srf_t_js_ms_n_pls = self._get_theta_dsh_s_t_js_ms_n_pls(
+        #    theta_dsh_srf_t_js_ms_n=bcs_js_n.theta_dsh_s_t_js_ms,
+        #    theta_rear_js_n=theta_rear_js_n
+        #)
+
+        #theta_dsh_srf_a_js_ms_n_pls = self._get_theta_dsh_s_a_js_ms_n_pls(
+        #    q_s_js_n=q_s_js_n,
+        #    theta_dsh_srf_a_js_ms_n=bcs_js_n.theta_dsh_s_a_js_ms
+        #)
 
         return BoundaryComponentsStatus(
             theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n_pls,
@@ -227,6 +245,8 @@ class BoundaryComponents:
         Notes:
             式(2.30)
         """
+
+
 
         return self.phi_t1_js_ms * theta_rear_js_n + self.r_js_ms * theta_dsh_srf_t_js_ms_n
 
