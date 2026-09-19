@@ -896,7 +896,7 @@ class Boundaries:
         f_cvl_js_n_pls = np.zeros((self.n_b, 1), dtype=float)
 
         for j, bcomp in enumerate(bcomps.bcomplist):
-            f_cvl_js_n_pls[j, 0] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=self.h_s_js[j])
+            f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=self.h_s_js[j])
 
         return f_cvl_js_n_pls
 
@@ -947,7 +947,7 @@ class Boundaries:
         f_cvl_js_n_pls = np.zeros((self.n_ground, 1), dtype=float)
 
         for j, bcomp in enumerate(self.bcomps_ground.bcomplist):
-            f_cvl_js_n_pls[j, 0] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=h_s_js_ground[j])
+            f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=h_s_js_ground[j])
 
         return f_cvl_js_n_pls
 
