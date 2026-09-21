@@ -91,14 +91,32 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
 
         #return (sum(bcs_j_n_pls.theta_dsh_s_a_js_ms[j]) + sum(bcs_j_n_pls.theta_dsh_s_t_js_ms[j]))/(1 + self.rf.phi_a0_js * h_s_j)
         return (sum(bcs_j_n_pls.get_theta_dsh_s_a_j_ms(j)) + sum(bcs_j_n_pls.get_theta_dsh_s_t_j_ms(j)))/(1 + self.rf.phi_a0_js * h_s_j)
-    
+
+
+@dataclass
+class BoundaryComponentStatus:
+
+    theta_dsh_s_t_j_ms: np.ndarray
+
+    theta_dsh_s_a_j_ms: np.ndarray
+
+    @classmethod
+    def initialize(cls):
+        """initialize status
+
+        Returns:
+            BoundaryComponentStatus
+        """
+
+        return BoundaryComponentStatus(
+            theta_dsh_s_t_j_ms=np.full((12), 0.0),
+            theta_dsh_s_a_j_ms=np.full((12), 0.0)
+        )
 
 @dataclass
 class BoundaryComponentsStatus:
 
-    theta_dsh_s_t_js_ms: np.ndarray
-
-    theta_dsh_s_a_js_ms: np.ndarray
+    bcss: list[BoundaryComponentStatus]
 
     @classmethod
     def initialize(cls, n_b: int):
@@ -109,30 +127,44 @@ class BoundaryComponentsStatus:
         """
 
         return BoundaryComponentsStatus(
-            theta_dsh_s_t_js_ms=np.full((n_b, 12), 0.0),
-            theta_dsh_s_a_js_ms=np.full((n_b, 12), 0.0)
+            bcss=[BoundaryComponentStatus.initialize() for _ in range(n_b)]
         )
-    
-    def take_over(self, is_ground: np.ndarray, bcs_ground_js: BoundaryComponentsStatus):
-        
-        theta_dsh_s_t_js_ms = self.theta_dsh_s_t_js_ms
-        theta_dsh_s_a_js_ms = self.theta_dsh_s_a_js_ms
 
-        theta_dsh_s_t_js_ms[is_ground, :] = bcs_ground_js.theta_dsh_s_t_js_ms
-        theta_dsh_s_a_js_ms[is_ground, :] = bcs_ground_js.theta_dsh_s_a_js_ms
+    @classmethod
+    def set_status(cls, theta_dsh_s_t_js_ms: np.ndarray, theta_dsh_s_a_js_ms: np.ndarray):
 
         return BoundaryComponentsStatus(
-            theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms,
-            theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms
+            bcss=[BoundaryComponentStatus(theta_dsh_s_t_j_ms=theta_dsh_s_t_js_ms[j, :], theta_dsh_s_a_j_ms=theta_dsh_s_a_js_ms[j, :]) for j in range(theta_dsh_s_t_js_ms.shape[0])]
+        )
+
+    def take_over(self, is_ground: np.ndarray, bcs_ground_js: BoundaryComponentsStatus):
+
+        # theta_dsh_s_t_js_ms = self.theta_dsh_s_t_js_ms
+        # theta_dsh_s_a_js_ms = self.theta_dsh_s_a_js_ms
+        theta_dsh_s_t_js_ms = np.array([bcs_j.theta_dsh_s_t_j_ms for bcs_j in self.bcss])
+        theta_dsh_s_a_js_ms = np.array([bcs_j.theta_dsh_s_a_j_ms for bcs_j in self.bcss])
+
+        #theta_dsh_s_t_js_ms[is_ground, :] = bcs_ground_js.theta_dsh_s_t_js_ms
+        #theta_dsh_s_a_js_ms[is_ground, :] = bcs_ground_js.theta_dsh_s_a_js_ms
+
+        n = 0
+        for j, _ in enumerate(theta_dsh_s_t_js_ms):
+            if is_ground[j]:
+                theta_dsh_s_t_js_ms[j] = bcs_ground_js.get_theta_dsh_s_t_j_ms(n)
+                theta_dsh_s_a_js_ms[j] = bcs_ground_js.get_theta_dsh_s_a_j_ms(n)
+                n += 1
+
+        return BoundaryComponentsStatus(
+            bcss=[BoundaryComponentStatus(theta_dsh_s_t_j_ms=theta_dsh_s_t_js_ms[j, :], theta_dsh_s_a_j_ms=theta_dsh_s_a_js_ms[j, :]) for j in range(theta_dsh_s_t_js_ms.shape[0])]
         )
 
     def get_theta_dsh_s_t_j_ms(self, j: int) -> np.ndarray:
 
-        return self.theta_dsh_s_t_js_ms[j, :]
+        return self.bcss[j].theta_dsh_s_t_j_ms
 
     def get_theta_dsh_s_a_j_ms(self, j: int) -> np.ndarray:
         
-        return self.theta_dsh_s_a_js_ms[j, :]
+        return self.bcss[j].theta_dsh_s_a_j_ms
 
 @dataclass
 class BoundaryComponents:
@@ -214,66 +246,48 @@ class BoundaryComponents:
         theta_dsh_srf_a_js_ms_n_pls = np.zeros((n_j, 12))
 
         for j in range(n_j):
-            theta_dsh_srf_t_js_ms_n_pls[j,:] = self.phi_t1_js_ms[j, :] * theta_rear_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.theta_dsh_s_t_js_ms[j, :]
-            theta_dsh_srf_a_js_ms_n_pls[j,:] = self.phi_a1_js_ms[j, :] * q_s_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.theta_dsh_s_a_js_ms[j, :]
+
+            #Args:
+            #    theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
+            #    theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
+            #Returns:
+            #    ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
+            #Notes:
+            #    式(2.30)
+            #theta_dsh_srf_t_js_ms_n_pls[j,:] = self.phi_t1_js_ms[j, :] * theta_rear_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.theta_dsh_s_t_js_ms[j, :]
+            theta_dsh_srf_t_js_ms_n_pls[j,:] = self.phi_t1_js_ms[j, :] * theta_rear_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.get_theta_dsh_s_t_j_ms(j)
+            #Args:
+            #    phi_a1_js_ms: 境界 j の項別公比法の指数項 m の吸熱応答係数, m2 K/W, [j, m]
+            #    q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+            #    r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
+            #    theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
+            #Returns:
+            #    ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
+            #Notes:
+            #    式(2.29)
+            #theta_dsh_srf_a_js_ms_n_pls[j,:] = self.phi_a1_js_ms[j, :] * q_s_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.theta_dsh_s_a_js_ms[j, :]
+            theta_dsh_srf_a_js_ms_n_pls[j,:] = self.phi_a1_js_ms[j, :] * q_s_js_n[j] + self.r_js_ms[j, :] * bcs_js_n.get_theta_dsh_s_a_j_ms(j)
         
-        #theta_dsh_srf_t_js_ms_n_pls = self._get_theta_dsh_s_t_js_ms_n_pls(
-        #    theta_dsh_srf_t_js_ms_n=bcs_js_n.theta_dsh_s_t_js_ms,
-        #    theta_rear_js_n=theta_rear_js_n
+        #return BoundaryComponentsStatus(
+        #    theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n_pls,
+        #    theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n_pls            
         #)
-
-        #theta_dsh_srf_a_js_ms_n_pls = self._get_theta_dsh_s_a_js_ms_n_pls(
-        #    q_s_js_n=q_s_js_n,
-        #    theta_dsh_srf_a_js_ms_n=bcs_js_n.theta_dsh_s_a_js_ms
-        #)
-
-        return BoundaryComponentsStatus(
+        return BoundaryComponentsStatus.set_status(
             theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n_pls,
             theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n_pls            
         )
+    
         
-    def _get_theta_dsh_s_t_js_ms_n_pls(self, theta_dsh_srf_t_js_ms_n, theta_rear_js_n):
-        """
-
-        Args:
-            theta_dsh_srf_t_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-            theta_rear_js_n: ステップ n における境界 j の裏面温度, degree C, [j, 1]
-
-        Returns:
-            ステップ n+1 における境界 j の項別公比法の指数項 m の貫流応答の項別成分, degree C, [j, m]
-
-        Notes:
-            式(2.30)
-        """
-
-
-
-        return self.phi_t1_js_ms * theta_rear_js_n + self.r_js_ms * theta_dsh_srf_t_js_ms_n
-
-    def _get_theta_dsh_s_a_js_ms_n_pls(self, q_s_js_n, theta_dsh_srf_a_js_ms_n):
-        """
-
-        Args:
-            phi_a1_js_ms: 境界 j の項別公比法の指数項 m の吸熱応答係数, m2 K/W, [j, m]
-            q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
-            r_js_ms: 境界 j の項別公比法の指数項 m の公比, -, [j, m]
-            theta_dsh_srf_a_js_ms_n: ステップ n における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-        Returns:
-            ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [j, m]
-
-        Notes:
-            式(2.29)
-        """
-
-        return self.phi_a1_js_ms * q_s_js_n + self.r_js_ms * theta_dsh_srf_a_js_ms_n
-
     def get_wall_steady_state_status(self, q_srf_js_n, theta_rear_js_n):
 
         theta_dsh_s_a_js_ms_n = q_srf_js_n * self.phi_a1_js_ms / (1.0 - self.r_js_ms)
         theta_dsh_s_t_js_ms_n = theta_rear_js_n * self.phi_t1_js_ms / (1.0 - self.r_js_ms)
 
-        return BoundaryComponentsStatus(
+        #return BoundaryComponentsStatus(
+        #    theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n,
+        #    theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n
+        #)
+        return BoundaryComponentsStatus.set_status(
             theta_dsh_s_t_js_ms=theta_dsh_s_t_js_ms_n,
             theta_dsh_s_a_js_ms=theta_dsh_s_a_js_ms_n
         )

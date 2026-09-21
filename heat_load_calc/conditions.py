@@ -113,7 +113,6 @@ class Conditions:
 
         bcs_n = BoundaryComponentsStatus.initialize(n_b=n_b).take_over(is_ground=is_ground, bcs_ground_js=gc_n.bcs_js_n)
 
-
         q_srf_jstrs_n[is_ground, :] = gc_n.q_srf_js_n
 
         return Conditions(
