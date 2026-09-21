@@ -5,8 +5,7 @@ from heat_load_calc.input_models.input_building import InputBuilding
 from heat_load_calc.input_models.input_infiltration import InputInfiltration
 from heat_load_calc.input_models.input_room import InputRoom
 from heat_load_calc.input_models.input_boundary import InputBoundary
-from heat_load_calc.input_models.input_furniture import InputFurniture, InputFurnitureDefault, InputFurnitureSpecify
-from heat_load_calc.input_models.input_schedule_data import InputScheduleData, InputScheduleDataConst
+from heat_load_calc.input_models.input_furniture import InputFurnitureDefault
 
 from heat_load_calc.weather import Weather
 from heat_load_calc.schedule import Schedule
@@ -19,7 +18,6 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.building import Building
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure, EShapeFactorMethod
-from heat_load_calc.boundary_component import BoundaryComponentsStatus
 
 class TestCase(Enum):
 
@@ -281,7 +279,7 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
         + np.dot(bs.k_s_r_js_is, theta_r_is_n)
     )
 
-    bcs_n = bs.bcomps.get_wall_steady_state_status(
+    bcs_js_n = bs.bcomps.get_wall_steady_state_status(
         q_srf_js_n=q_s_js_n,
         theta_rear_js_n=theta_rear_js_n
     )
@@ -303,7 +301,7 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
         theta_frt_is_n=theta_frt_is_n,
         x_frt_is_n=x_frt_is_n,
         theta_ei_js_n=theta_ei_js_n,
-        bcs_n=bcs_n
+        bcs_js_n=bcs_js_n
     )
 
     return c_n

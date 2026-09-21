@@ -21,8 +21,6 @@ from heat_load_calc.recorder import Recorder
 from heat_load_calc.conditions import GroundConditions
 from heat_load_calc.operation_mode import Operation, OperationMode
 from heat_load_calc.interval import Interval
-from heat_load_calc import boundaries
-from heat_load_calc.boundary_component import BoundaryComponentsStatus
 
 
 # ロガー
@@ -349,7 +347,7 @@ class Sequence:
 
         # ステップ n+1 の境界 j における係数f_CVL, degree C, [j, 1]
         # Boundary Component Status as step n+1
-        f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(bcs_js_n_pls=c_n.bcs_n)
+        f_cvl_js_n_pls = self.bs.get_f_cvl_js_n_pls(bcs_js_n_pls=c_n.bcs_js_n)
 
         # ステップ n+1 の境界 j における係数 f_WSV, degree C, [j, 1]
         f_wsv_js_n_pls = get_f_wsv_js_n_pls(
@@ -757,7 +755,7 @@ class Sequence:
         )
 
         bcs_js_n_pls = self.bs.get_next_boundary_components_status(
-            bcs_js_n=c_n.bcs_n,
+            bcs_js_n=c_n.bcs_js_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=q_s_js_n_pls
         )
@@ -894,7 +892,7 @@ class Sequence:
             theta_frt_is_n=theta_frt_is_n_pls,
             x_frt_is_n=x_frt_is_n_pls,
             theta_ei_js_n=theta_ei_js_n_pls,
-            bcs_n=bcs_js_n_pls
+            bcs_js_n=bcs_js_n_pls
         )
 
 

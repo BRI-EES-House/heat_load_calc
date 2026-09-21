@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import psychrometrics as psy
-from heat_load_calc.boundary_component import BoundaryComponentsStatus
+from heat_load_calc.boundary_component import BoundaryComponentStatus
 
 
 @dataclass
@@ -13,7 +13,7 @@ class GroundConditions:
     q_srf_js_n: np.ndarray
 
     # ステップnの境界jにおける状態量, [J, 1]
-    bcs_js_n: BoundaryComponentsStatus
+    bcs_js_n: list[BoundaryComponentStatus]
 
     @classmethod
     def initialize(cls, n_grounds: int):
@@ -22,11 +22,11 @@ class GroundConditions:
         # 初期値を0.0W/m2とする。
         q_srf_js_n0 = np.zeros((n_grounds, 1), dtype=float)
 
-        bcs_js_n = BoundaryComponentsStatus.initialize(n_b=n_grounds)
+        bcss = [BoundaryComponentStatus.initialize() for _ in range(n_grounds)]
 
         return GroundConditions(
             q_srf_js_n=q_srf_js_n0,
-            bcs_js_n=bcs_js_n
+            bcs_js_n=bcss
         )
 
 
@@ -63,7 +63,7 @@ class Conditions:
     theta_ei_js_n: np.ndarray
 
     # Boundary component status
-    bcs_n: BoundaryComponentsStatus
+    bcs_js_n: list[BoundaryComponentStatus]
 
     @classmethod
     def initialize_conditions(cls, n_r: int, n_b: int, is_ground: np.array, gc_n: GroundConditions):
@@ -111,7 +111,17 @@ class Conditions:
         # theta_dsh_srf_a_js_ms_n0[is_ground, :] = gc_n.bcs_js_n.theta_dsh_s_a_js_ms
         # theta_dsh_srf_t_js_ms_n0[is_ground, :] = gc_n.bcs_js_n.theta_dsh_s_t_js_ms
 
-        bcs_n = BoundaryComponentsStatus.initialize(n_b=n_b).take_over(is_ground=is_ground, bcs_ground_js=gc_n.bcs_js_n)
+        bcs_ground_js = gc_n.bcs_js_n
+
+        bcs_js_n = [BoundaryComponentStatus.initialize() for _ in range(n_b)]
+
+        n = 0
+        for j, bcs in enumerate(bcs_js_n):
+            if is_ground[j]:
+                bcs_j_n_pls = bcs_ground_js[n]
+                bcs.theta_dsh_s_t_j_ms = bcs_j_n_pls.theta_dsh_s_t_j_ms
+                bcs.theta_dsh_s_a_j_ms = bcs_j_n_pls.theta_dsh_s_a_j_ms
+                n += 1
 
         q_srf_jstrs_n[is_ground, :] = gc_n.q_srf_js_n
 
@@ -124,10 +134,7 @@ class Conditions:
             theta_frt_is_n=theta_frt_is_n.reshape(-1, 1),
             x_frt_is_n=x_frt_is_n,
             theta_ei_js_n=np.full(n_b, 15.0).reshape(-1, 1),
-#            bcs_n=BoundaryComponentsStatus(theta_dsh_s_t_js_ms=theta_dsh_srf_t_js_ms_n0, theta_dsh_s_a_js_ms=theta_dsh_srf_a_js_ms_n0)
-            bcs_n=bcs_n
+            bcs_js_n=bcs_js_n
         )
-
-
 
 

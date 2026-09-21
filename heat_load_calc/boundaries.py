@@ -30,7 +30,7 @@ from heat_load_calc.input_models.input_solar_shading_part import (
 from heat_load_calc.boundary_component import (
     BoundaryComponentResponseFactor,
     BoundaryComponents,
-    BoundaryComponentsStatus
+    BoundaryComponentStatus
 )
 
 from heat_load_calc.tenum import EBoundaryType
@@ -733,8 +733,6 @@ class Boundaries:
 
         # response factor of boundary j, [J, 1] or [J, M]
         bcomps = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss])
-        phi_a0_js = bcomps.phi_a0_js
-        phi_t0_js = bcomps.phi_t0_js
         f_fi_js = bcomps.f_fi_js
         f_fo_js = bcomps.f_fo_js
 
@@ -855,10 +853,10 @@ class Boundaries:
 
     def get_next_boundary_components_status(
             self,
-            bcs_js_n: BoundaryComponentsStatus,
+            bcs_js_n: list[BoundaryComponentStatus],
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
-        ) -> BoundaryComponentsStatus:
+        ) -> list[BoundaryComponentStatus]:
         """
 
         Args:
@@ -875,10 +873,11 @@ class Boundaries:
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=q_s_js_n
         )
-            
+
+
     def get_f_cvl_js_n_pls(
             self,
-            bcs_js_n_pls: BoundaryComponentsStatus
+            bcs_js_n_pls: list[BoundaryComponentStatus]
         ) -> np.ndarray:
         """
 
@@ -896,16 +895,17 @@ class Boundaries:
         f_cvl_js_n_pls = np.zeros((self.n_b, 1), dtype=float)
 
         for j, bcomp in enumerate(bcomps.bcomplist):
-            f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=self.h_s_js[j])
+            bcs_j_n_pls = bcs_js_n_pls[j]
+            f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_j_n_pls, h_s_j=self.h_s_js[j])
 
         return f_cvl_js_n_pls
 
     def get_next_boundary_components_status_ground(
             self,
-            bcs_js_n: BoundaryComponentsStatus,
+            bcs_js_n: list[BoundaryComponentStatus],
             theta_rear_js_n: np.ndarray,
             q_s_js_n: np.ndarray
-        ) -> BoundaryComponentsStatus:
+        ) -> list[BoundaryComponentStatus]:
         """
         Args:
             bcs_js_n: boundary components status at step n
@@ -916,17 +916,15 @@ class Boundaries:
             boundary components status of ground at step n+1
         """
 
-        bcs_js_n_pls = self.bcomps_ground._get_next_boundary_components_status(
+        return self.bcomps_ground._get_next_boundary_components_status(
             bcs_js_n=bcs_js_n,
             theta_rear_js_n=theta_rear_js_n,
             q_s_js_n=q_s_js_n
         )
 
-        return bcs_js_n_pls
-
     def get_f_cvl_ground_js_n_pls(
             self,
-            bcs_js_n_pls: BoundaryComponentsStatus
+            bcs_js_n_pls: list[BoundaryComponentStatus]
         ) -> np.ndarray:
         """
         Args:
@@ -947,7 +945,8 @@ class Boundaries:
         f_cvl_js_n_pls = np.zeros((self.n_ground, 1), dtype=float)
 
         for j, bcomp in enumerate(self.bcomps_ground.bcomplist):
-            f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_js_n_pls, j=j, h_s_j=h_s_js_ground[j])
+            bcs_j_n_pls = bcs_js_n_pls[j]
+            f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_j_n_pls, h_s_j=h_s_js_ground[j])
 
         return f_cvl_js_n_pls
 
