@@ -626,10 +626,10 @@ class Boundaries:
     f_wsr_js_is: np.ndarray
 
     # boundary component class, [J]
-    bcomplist: List[BoundaryComponentResponseFactor]
+    bcomplist: List[BoundaryComponent]
 
     # boundary component class for ground, [J]
-    bcomplist_ground: List[BoundaryComponentResponseFactor]
+    bcomplist_ground: List[BoundaryComponent]
 
     # integrated heat transfer coefficient of inside surface, W/m2K, [J, 1]
     h_s_js: np.ndarray
@@ -865,13 +865,15 @@ class Boundaries:
             boundary components status at step n+1
         """
 
-        return [
-            BoundaryComponentStatus(
-                theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
-                theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
-            )
-            for j, bcomp in enumerate(self.bcomplist)
-        ]
+        return [bcomp.get_bcs_j_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j], q_s_j_n=q_s_js_n[j]) for j, bcomp in enumerate(self.bcomplist)]
+
+        #return [
+        #    BoundaryComponentStatus(
+        #        theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
+        #        theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
+        #    )
+        #    for j, bcomp in enumerate(self.bcomplist)
+        #]
         #return self.bcomps._get_next_boundary_components_status(
         #    bcs_js_n=bcs_js_n,
         #    theta_rear_js_n=theta_rear_js_n,
@@ -918,14 +920,16 @@ class Boundaries:
             boundary components status of ground at step n+1
         """
 
-        return [
-            BoundaryComponentStatus(
-                theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
-                theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
-            )
-            for j, bcomp
-            in enumerate(self.bcomplist_ground)
-        ]
+        return [bcomp.get_bcs_j_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j], q_s_j_n=q_s_js_n[j]) for j, bcomp in enumerate(self.bcomplist_ground)]
+
+        #return [
+        #    BoundaryComponentStatus(
+        #        theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
+        #        theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
+        #    )
+        #    for j, bcomp
+        #    in enumerate(self.bcomplist_ground)
+        #]
 
     def get_f_cvl_ground_js_n_pls(
             self,

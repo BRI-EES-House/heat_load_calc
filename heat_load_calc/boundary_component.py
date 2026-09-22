@@ -1,5 +1,5 @@
 from __future__ import annotations
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
 
@@ -17,15 +17,40 @@ from heat_load_calc.response_factor import ResponseFactor
 @dataclass
 class BoundaryComponent(ABC):
 
-    ...
+    @property
+    @abstractmethod
+    def f_fi(self) -> float:
+        pass
+
+    @property
+    @abstractmethod
+    def f_fo(self) -> float:
+        pass
+
+    @property
+    @abstractmethod
+    def r_total(self) -> float:
+        pass
+
+    @abstractmethod
+    def get_f_cf_j_n_pls(self, bcs_j_n_pls: BoundaryComponentStatus, h_s_j: float) -> float:
+        pass
+
+    @abstractmethod
+    def get_bcs_j_steady_state(self, q_srf_j_n: float, theta_rear_j_n: float) -> BoundaryComponentStatus:
+        pass
+
+    @abstractmethod
+    def get_bcs_j_n_pls(self, bcs_j_n: BoundaryComponentStatus, theta_rear_j_n: float, q_s_j_n: float) -> BoundaryComponentStatus:
+        pass
 
 
 @dataclass
 class BoundaryComponentResponseFactor(BoundaryComponent):
 
-    rf: ResponseFactor
-    f_fi: float
-    f_fo: float
+    _rf: ResponseFactor
+    _f_fi: float
+    _f_fo: float
 
     @classmethod
     def create(cls, rf: ResponseFactor, h_s: float):
@@ -34,9 +59,9 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
         f_fo = rf.phi_t0_js / (1 + rf.phi_a0_js * h_s)  
 
         return BoundaryComponentResponseFactor(
-            rf=rf,
-            f_fi=f_fi,
-            f_fo=f_fo
+            _rf=rf,
+            _f_fi=f_fi,
+            _f_fo=f_fo
         )
 
     @classmethod
@@ -59,37 +84,20 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
         rf = ResponseFactor.create_for_steady(u_w=u_w, r_i=r_i)
 
         return cls.create(rf=rf, h_s=h_s)
-    
+
+    @property
+    def f_fi(self) -> float:
+        return self._f_fi
+
+    @property
+    def f_fo(self) -> float:
+        return self._f_fo
+
     @property
     def r_total(self) -> float:
 
-        return self.rf.r_total
+        return self._rf.r_total
     
-    @property
-    def rfa0(self) -> float:
-
-        return self.rf.phi_a0_js
-    
-    @property
-    def rft0(self) -> float:
-
-        return self.rf.phi_t0_js
-
-    @property
-    def rfa1(self) -> np.ndarray:
-
-        return self.rf.phi_a1_js_ms
-
-    @property
-    def rft1(self) -> np.ndarray:
-
-        return self.rf.phi_t1_js_ms
-
-    @property
-    def rfr(self) -> np.ndarray:
-
-        return self.rf.r_js_ms
-
     def get_f_cf_j_n_pls(self, bcs_j_n_pls: BoundaryComponentStatus, h_s_j: float) -> float:
         """
 
@@ -103,16 +111,36 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
             式(2.28)
         """
 
-        return (sum(bcs_j_n_pls.theta_dsh_s_a_j_ms) + sum(bcs_j_n_pls.theta_dsh_s_t_j_ms))/(1 + self.rf.phi_a0_js * h_s_j)
+        return (sum(bcs_j_n_pls.theta_dsh_s_a_j_ms) + sum(bcs_j_n_pls.theta_dsh_s_t_j_ms))/(1 + self._rf.phi_a0_js * h_s_j)
 
-    def get_wall_steady_state_status(self, q_srf_j_n: float, theta_rear_j_n: float) -> BoundaryComponentStatus:
+    def get_bcs_j_steady_state(self, q_srf_j_n: float, theta_rear_j_n: float) -> BoundaryComponentStatus:
 
         return BoundaryComponentStatus(
-            theta_dsh_s_t_j_ms=theta_rear_j_n * self.rft1 / (1.0 - self.rfr),
-            theta_dsh_s_a_j_ms=q_srf_j_n * self.rfa1 / (1.0 - self.rfr)
+            theta_dsh_s_t_j_ms=theta_rear_j_n * self._rf.phi_t1_js_ms / (1.0 - self._rf.r_js_ms),
+            theta_dsh_s_a_j_ms=q_srf_j_n * self._rf.phi_a1_js_ms / (1.0 - self._rf.r_js_ms)
         )
 
-    def get_theta_dsh_srf_t_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatus, theta_rear_j_n: float) -> np.ndarray:
+    def get_bcs_j_n_pls(self, bcs_j_n: BoundaryComponentStatus, theta_rear_j_n: float, q_s_j_n: float) -> BoundaryComponentStatus:
+        """
+
+        Args:
+            bcs_j_n: 境界 j のBoundaryComponentStatus
+            theta_rear_j_n: ステップ n における境界 j の裏面温度, degree C
+            q_s_j_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2
+
+        Returns:
+            ステップ n+1 における境界 j のBoundaryComponentStatus
+        Notes:
+            式(2.29)と式(2.30)
+        """
+
+        return BoundaryComponentStatus(
+            theta_dsh_s_t_j_ms=self._get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_j_n, theta_rear_j_n=theta_rear_j_n),
+            theta_dsh_s_a_j_ms=self._get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_j_n, q_s_j_n=q_s_j_n)
+        )
+    
+
+    def _get_theta_dsh_srf_t_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatus, theta_rear_j_n: float) -> np.ndarray:
         """
 
         Args:
@@ -125,14 +153,14 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
             式(2.30)
         """
 
-        return self.rft1 * theta_rear_j_n + self.rfr * bcs_j_n.theta_dsh_s_t_j_ms
+        return self._rf.phi_t1_js_ms * theta_rear_j_n + self._rf.r_js_ms * bcs_j_n.theta_dsh_s_t_j_ms
 
-    def get_theta_dsh_srf_a_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatus, q_s_js_n: float) -> np.ndarray:
+    def _get_theta_dsh_srf_a_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatus, q_s_j_n: float) -> np.ndarray:
         """
 
         Args:
             bcs_j_n: 境界 j のBoundaryComponentStatus
-            q_s_js_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2
+            q_s_j_n: ステップ n における境界 j の表面熱流（壁体吸熱を正とする）, W/m2
 
         Returns:
             ステップ n+1 における境界 j の項別公比法の指数項 m の吸熱応答の項別成分, degree C, [m]
@@ -140,7 +168,7 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
             式(2.29)
         """
 
-        return self.rfa1 * q_s_js_n + self.rfr * bcs_j_n.theta_dsh_s_a_j_ms
+        return self._rf.phi_a1_js_ms * q_s_j_n + self._rf.r_js_ms * bcs_j_n.theta_dsh_s_a_j_ms
 
 
 @dataclass

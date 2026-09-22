@@ -283,7 +283,7 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
     bcomplist: list[BoundaryComponent]= bs.bcomplist
 
     bcs_js_n = [
-        b.get_wall_steady_state_status(q_srf_j_n=q_s_j_n, theta_rear_j_n=theta_rear_j_n)
+        b.get_bcs_j_steady_state(q_srf_j_n=q_s_j_n, theta_rear_j_n=theta_rear_j_n)
         for b, q_s_j_n, theta_rear_j_n
         in zip(bcomplist, q_s_js_n.flatten(), theta_rear_js_n.flatten())
     ]

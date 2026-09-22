@@ -661,10 +661,9 @@ class TestBoundaries(unittest.TestCase):
         h_s_c_js = _get_h_s_c_js()
         h_s_r_js = _get_h_s_r_js()
 
-        bcomplist = _get_bcomps()
+        bc_js = _get_bcomps()
 
-        #r_total_js = bcomps.r_total_js
-        r_total_js = np.array([bcomp.rf.r_total for bcomp in bcomplist]).reshape(-1, 1)
+        r_total_js = np.array([bc_j.r_total for bc_j in bc_js]).reshape(-1, 1)
 
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
          
@@ -682,14 +681,14 @@ class TestBoundaries(unittest.TestCase):
 
     def test_f_fi_js(self):
 
-        bcomplist = _get_bcomps()
-        f_fi_js = np.array([bcomp.f_fi for bcomp in bcomplist]).reshape(-1, 1)
+        bc_js = _get_bcomps()
+        f_fi_js = np.array([bc_j.f_fi for bc_j in bc_js]).reshape(-1, 1)
         np.testing.assert_equal(f_fi_js, self._bs.f_fi_js)
     
     def test_f_fo_js(self):
 
-        bcomplist = _get_bcomps()
-        f_fo_js = np.array([bcomp.f_fo for bcomp in bcomplist]).reshape(-1, 1)
+        bc_js = _get_bcomps()
+        f_fo_js = np.array([bc_j.f_fo for bc_j in bc_js]).reshape(-1, 1)
         np.testing.assert_equal(f_fo_js, self._bs.f_fo_js)
 
     def test_o_eqv_js_nspls(self):
