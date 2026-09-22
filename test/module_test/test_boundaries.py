@@ -31,7 +31,7 @@ from heat_load_calc.input_models.input_solar_shading_part import (
     InputSolarShadingPartNot
 )
 from heat_load_calc.input_models.input_layer import InputLayer
-from heat_load_calc.boundary_component import BoundaryComponent, BoundaryComponentResponseFactor, BoundaryComponents
+from heat_load_calc.boundary_component import BoundaryComponent, BoundaryComponentResponseFactor
 
 
 def get_input_boundaries():
@@ -661,9 +661,10 @@ class TestBoundaries(unittest.TestCase):
         h_s_c_js = _get_h_s_c_js()
         h_s_r_js = _get_h_s_r_js()
 
-        bcomps = _get_bcomps()
+        bcomplist = _get_bcomps()
 
-        r_total_js = bcomps.r_total_js
+        #r_total_js = bcomps.r_total_js
+        r_total_js = np.array([bcomp.rf.r_total for bcomp in bcomplist]).reshape(-1, 1)
 
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
          
@@ -681,13 +682,15 @@ class TestBoundaries(unittest.TestCase):
 
     def test_f_fi_js(self):
 
-        bcomps = _get_bcomps()
-        np.testing.assert_equal(bcomps.f_fi_js, self._bs.f_fi_js)
+        bcomplist = _get_bcomps()
+        f_fi_js = np.array([bcomp.f_fi for bcomp in bcomplist]).reshape(-1, 1)
+        np.testing.assert_equal(f_fi_js, self._bs.f_fi_js)
     
     def test_f_fo_js(self):
 
-        bcomps = _get_bcomps()
-        np.testing.assert_equal(bcomps.f_fo_js, self._bs.f_fo_js)
+        bcomplist = _get_bcomps()
+        f_fo_js = np.array([bcomp.f_fo for bcomp in bcomplist]).reshape(-1, 1)
+        np.testing.assert_equal(f_fo_js, self._bs.f_fo_js)
 
     def test_o_eqv_js_nspls(self):
 
@@ -885,7 +888,7 @@ def _get_t_b_js():
     ])   
 
 
-def _get_bcomps() -> BoundaryComponents:
+def _get_bcomps() -> list[BoundaryComponentResponseFactor]:
 
     h_s_c_js = _get_h_s_c_js()
     h_s_r_js = _get_h_s_r_js()
@@ -901,9 +904,7 @@ def _get_bcomps() -> BoundaryComponents:
         for i, ipt_boundary in enumerate(ipt_boundaries)
     ]
 
-    return BoundaryComponents.create(
-        bcomplist=bcomplist
-    )
+    return bcomplist
 
 def _get_p_is_js():
     """[I, J]"""

@@ -28,8 +28,8 @@ from heat_load_calc.input_models.input_solar_shading_part import (
     InputSolarShadingPartNot
 )
 from heat_load_calc.boundary_component import (
+    BoundaryComponent,
     BoundaryComponentResponseFactor,
-    BoundaryComponents,
     BoundaryComponentStatus
 )
 
@@ -120,17 +120,14 @@ class Boundary:
     # 透過日射熱取得, W, [8760*4]
     q_trs_sol_nplus: np.ndarray
 
-    # 応答係数データクラス
-    #rf: response_factor.ResponseFactor
-
     # 裏面温度に他の境界 j の等価室温が与える影響, [j, j]
     k_ei_js: np.ndarray
 
     # 裏面温度に室の空気温度が与える影響
     k_s_r: float
 
-    # boundary component
-    bcomp: BoundaryComponentResponseFactor
+    # Boundary Component Class
+    bcomp: BoundaryComponent
 
     @staticmethod
     def _get_k_eo_j(ipt_boundary: InputBoundary):
@@ -628,11 +625,11 @@ class Boundaries:
     # coefficient f_wsr, -, [J, I]
     f_wsr_js_is: np.ndarray
 
-    # boundary components class
-    bcomps: BoundaryComponents
+    # boundary component class, [J]
+    bcomplist: List[BoundaryComponentResponseFactor]
 
-    # boundary components class for ground
-    bcomps_ground: BoundaryComponents
+    # boundary component class for ground, [J]
+    bcomplist_ground: List[BoundaryComponentResponseFactor]
 
     # integrated heat transfer coefficient of inside surface, W/m2K, [J, 1]
     h_s_js: np.ndarray
@@ -732,11 +729,11 @@ class Boundaries:
         u_js = 1.0 / (1.0 / (h_s_c_js + h_s_r_js) + r_total_js)
 
         # response factor of boundary j, [J, 1] or [J, M]
-        bcomps = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss])
-        f_fi_js = bcomps.f_fi_js
-        f_fo_js = bcomps.f_fo_js
+        bcomplist = [bs.bcomp for bs in bss]
+        f_fi_js = np.array([bs.bcomp.f_fi for bs in bss]).reshape(-1, 1)
+        f_fo_js = np.array([bs.bcomp.f_fo for bs in bss]).reshape(-1, 1)
 
-        bcomps_ground = BoundaryComponents.create(bcomplist=[bs.bcomp for bs in bss if bs.t_b == EBoundaryType.GROUND])
+        bcomplist_ground = [bs.bcomp for bs in bss if bs.t_b == EBoundaryType.GROUND]
 
         # outside equivalent temperature of boundary j, degree C, [J, N+1]
         theta_o_eqv_js_nspls = np.array([bs.theta_o_eqv_nspls for bs in bss])
@@ -796,8 +793,8 @@ class Boundaries:
             f_mrt_is_js=f_mrt_is_js,
             f_ax_js_js=f_ax_js_js,
             f_wsr_js_is=f_wsr_js_is,
-            bcomps=bcomps,
-            bcomps_ground=bcomps_ground,
+            bcomplist=bcomplist,
+            bcomplist_ground=bcomplist_ground,
             h_s_js=h_s_js,
             f_fi_js=f_fi_js,
             f_fo_js=f_fo_js
@@ -873,7 +870,7 @@ class Boundaries:
                 theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
                 theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
             )
-            for j, bcomp in enumerate(self.bcomps.bcomplist)
+            for j, bcomp in enumerate(self.bcomplist)
         ]
         #return self.bcomps._get_next_boundary_components_status(
         #    bcs_js_n=bcs_js_n,
@@ -897,11 +894,9 @@ class Boundaries:
             式(2.28)
         """
 
-        bcomps: BoundaryComponents = self.bcomps
-
         f_cvl_js_n_pls = np.zeros((self.n_b, 1), dtype=float)
 
-        for j, bcomp in enumerate(bcomps.bcomplist):
+        for j, bcomp in enumerate(self.bcomplist):
             bcs_j_n_pls = bcs_js_n_pls[j]
             f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_j_n_pls, h_s_j=self.h_s_js[j])
 
@@ -923,11 +918,14 @@ class Boundaries:
             boundary components status of ground at step n+1
         """
 
-        return self.bcomps_ground._get_next_boundary_components_status(
-            bcs_js_n=bcs_js_n,
-            theta_rear_js_n=theta_rear_js_n,
-            q_s_js_n=q_s_js_n
-        )
+        return [
+            BoundaryComponentStatus(
+                theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
+                theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
+            )
+            for j, bcomp
+            in enumerate(self.bcomplist_ground)
+        ]
 
     def get_f_cvl_ground_js_n_pls(
             self,
@@ -951,7 +949,7 @@ class Boundaries:
 
         f_cvl_js_n_pls = np.zeros((self.n_ground, 1), dtype=float)
 
-        for j, bcomp in enumerate(self.bcomps_ground.bcomplist):
+        for j, bcomp in enumerate(self.bcomplist_ground):
             bcs_j_n_pls = bcs_js_n_pls[j]
             f_cvl_js_n_pls[j, :] = bcomp.get_f_cf_j_n_pls(bcs_j_n_pls=bcs_j_n_pls, h_s_j=h_s_js_ground[j])
 

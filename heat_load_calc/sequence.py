@@ -910,7 +910,13 @@ class Sequence:
 
         f_cvl_js_n_pls = self.bs.get_f_cvl_ground_js_n_pls(bcs_js_n_pls=bcs_js_n)
 
-        theta_s_js_npls = self.bs.bcomps_ground.f_fi_js * self.weather.theta_o_ns_plus[n+1] + self.bs.bcomps_ground.f_fo_js * theta_rear_js_npls + f_cvl_js_n_pls
+        # theta_s_js_npls = self.bs.bcomps_ground.f_fi_js * self.weather.theta_o_ns_plus[n+1] + self.bs.bcomps_ground.f_fo_js * theta_rear_js_npls + f_cvl_js_n_pls
+
+        theta_s_js_npls = np.array([
+            bcomp.f_fi * self.weather.theta_o_ns_plus[n+1] + bcomp.f_fo * theta_rear_j_npls + f_cvl_j_n_pls
+            for bcomp, theta_rear_j_npls, f_cvl_j_n_pls
+            in zip(self.bs.bcomplist_ground, theta_rear_js_npls.flatten(), f_cvl_js_n_pls.flatten())
+        ]).reshape(-1, 1)
 
         q_srf_js_n = h_i_js * (self.weather.theta_o_ns_plus[n + 1] - theta_s_js_npls)
 
