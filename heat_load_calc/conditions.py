@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 from heat_load_calc.operation_mode import OperationMode
 from heat_load_calc import psychrometrics as psy
-from heat_load_calc.boundary_component import BoundaryComponentStatus
+from heat_load_calc.boundary_component import BoundaryComponentStatus, BoundaryComponentStatusResponseFactor
 
 
 @dataclass
@@ -22,7 +22,7 @@ class GroundConditions:
         # 初期値を0.0W/m2とする。
         q_srf_js_n0 = np.zeros((n_grounds, 1), dtype=float)
 
-        bcs_js_n = [BoundaryComponentStatus.initialize() for _ in range(n_grounds)]
+        bcs_js_n = [BoundaryComponentStatusResponseFactor.initialize() for _ in range(n_grounds)]
 
         return GroundConditions(
             q_srf_js_n=q_srf_js_n0,
@@ -113,7 +113,7 @@ class Conditions:
 
         bcs_ground_js = gc_n.bcs_js_n
 
-        bcs_js_n = [BoundaryComponentStatus.initialize() for _ in range(n_b)]
+        bcs_js_n = [BoundaryComponentStatusResponseFactor.initialize() for _ in range(n_b)]
 
         n = 0
         for j, bcs in enumerate(bcs_js_n):

@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import numpy as np
+from typing import cast
 
 
 from heat_load_calc.input_models.input_boundary import (
@@ -111,11 +112,13 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
             式(2.28)
         """
 
+        bcs_j_n_pls = cast(BoundaryComponentStatusResponseFactor, bcs_j_n_pls)
+
         return (sum(bcs_j_n_pls.theta_dsh_s_a_j_ms) + sum(bcs_j_n_pls.theta_dsh_s_t_j_ms))/(1 + self._rf.phi_a0_js * h_s_j)
 
     def get_bcs_j_steady_state(self, q_srf_j_n: float, theta_rear_j_n: float) -> BoundaryComponentStatus:
 
-        return BoundaryComponentStatus(
+        return BoundaryComponentStatusResponseFactor(
             theta_dsh_s_t_j_ms=theta_rear_j_n * self._rf.phi_t1_js_ms / (1.0 - self._rf.r_js_ms),
             theta_dsh_s_a_j_ms=q_srf_j_n * self._rf.phi_a1_js_ms / (1.0 - self._rf.r_js_ms)
         )
@@ -134,13 +137,14 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
             式(2.29)と式(2.30)
         """
 
-        return BoundaryComponentStatus(
+        bcs_j_n = cast(BoundaryComponentStatusResponseFactor, bcs_j_n)
+
+        return BoundaryComponentStatusResponseFactor(
             theta_dsh_s_t_j_ms=self._get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_j_n, theta_rear_j_n=theta_rear_j_n),
             theta_dsh_s_a_j_ms=self._get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_j_n, q_s_j_n=q_s_j_n)
         )
-    
 
-    def _get_theta_dsh_srf_t_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatus, theta_rear_j_n: float) -> np.ndarray:
+    def _get_theta_dsh_srf_t_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatusResponseFactor, theta_rear_j_n: float) -> np.ndarray:
         """
 
         Args:
@@ -155,7 +159,7 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
 
         return self._rf.phi_t1_js_ms * theta_rear_j_n + self._rf.r_js_ms * bcs_j_n.theta_dsh_s_t_j_ms
 
-    def _get_theta_dsh_srf_a_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatus, q_s_j_n: float) -> np.ndarray:
+    def _get_theta_dsh_srf_a_j_ms_n_pls(self, bcs_j_n: BoundaryComponentStatusResponseFactor, q_s_j_n: float) -> np.ndarray:
         """
 
         Args:
@@ -172,7 +176,13 @@ class BoundaryComponentResponseFactor(BoundaryComponent):
 
 
 @dataclass
-class BoundaryComponentStatus:
+class BoundaryComponentStatus(ABC):
+
+    pass
+
+
+@dataclass
+class BoundaryComponentStatusResponseFactor(BoundaryComponentStatus):
 
     theta_dsh_s_t_j_ms: np.ndarray
 
@@ -186,7 +196,7 @@ class BoundaryComponentStatus:
             BoundaryComponentStatus
         """
 
-        return BoundaryComponentStatus(
+        return BoundaryComponentStatusResponseFactor(
             theta_dsh_s_t_j_ms=np.full((12), 0.0),
             theta_dsh_s_a_j_ms=np.full((12), 0.0)
         )
