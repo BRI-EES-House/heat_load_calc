@@ -868,11 +868,18 @@ class Boundaries:
             boundary components status at step n+1
         """
 
-        return self.bcomps._get_next_boundary_components_status(
-            bcs_js_n=bcs_js_n,
-            theta_rear_js_n=theta_rear_js_n,
-            q_s_js_n=q_s_js_n
-        )
+        return [
+            BoundaryComponentStatus(
+                theta_dsh_s_t_j_ms=bcomp.get_theta_dsh_srf_t_j_ms_n_pls(bcs_j_n=bcs_js_n[j], theta_rear_j_n=theta_rear_js_n[j]),
+                theta_dsh_s_a_j_ms=bcomp.get_theta_dsh_srf_a_j_ms_n_pls(bcs_j_n=bcs_js_n[j], q_s_js_n=q_s_js_n[j])
+            )
+            for j, bcomp in enumerate(self.bcomps.bcomplist)
+        ]
+        #return self.bcomps._get_next_boundary_components_status(
+        #    bcs_js_n=bcs_js_n,
+        #    theta_rear_js_n=theta_rear_js_n,
+        #    q_s_js_n=q_s_js_n
+        #)
 
 
     def get_f_cvl_js_n_pls(

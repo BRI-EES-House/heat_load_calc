@@ -18,6 +18,7 @@ from heat_load_calc.conditions import Conditions
 from heat_load_calc.building import Building
 from heat_load_calc.rooms import Rooms
 from heat_load_calc.tenum import EInfiltrationMethod, EStory, ECValueEstimateMethod, EInsidePressure, EShapeFactorMethod
+from heat_load_calc.boundary_component import BoundaryComponentStatus, BoundaryComponent
 
 class TestCase(Enum):
 
@@ -279,10 +280,13 @@ def get_steady_state_conditions(test_case: TestCase, bs: Boundaries):
         + np.dot(bs.k_s_r_js_is, theta_r_is_n)
     )
 
-    bcs_js_n = bs.bcomps.get_wall_steady_state_status(
-        q_srf_js_n=q_s_js_n,
-        theta_rear_js_n=theta_rear_js_n
-    )
+    bcomplist: list[BoundaryComponent]= bs.bcomps.bcomplist
+
+    bcs_js_n = [
+        b.get_wall_steady_state_status(q_srf_j_n=q_s_j_n, theta_rear_j_n=theta_rear_j_n)
+        for b, q_s_j_n, theta_rear_j_n
+        in zip(bcomplist, q_s_js_n.flatten(), theta_rear_js_n.flatten())
+    ]
     
     theta_frt_is_n = np.array(
         steady_condition[test_case]['furniture_temperature']

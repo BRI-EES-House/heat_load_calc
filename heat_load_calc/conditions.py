@@ -9,10 +9,10 @@ from heat_load_calc.boundary_component import BoundaryComponentStatus
 @dataclass
 class GroundConditions:
 
-    # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [j, 1]
+    # ステップnの境界jにおける表面熱流（壁体吸熱を正とする）, W/m2, [J, 1]
     q_srf_js_n: np.ndarray
 
-    # ステップnの境界jにおける状態量, [J, 1]
+    # ステップnの境界jにおける状態量, [J]
     bcs_js_n: list[BoundaryComponentStatus]
 
     @classmethod
@@ -22,11 +22,11 @@ class GroundConditions:
         # 初期値を0.0W/m2とする。
         q_srf_js_n0 = np.zeros((n_grounds, 1), dtype=float)
 
-        bcss = [BoundaryComponentStatus.initialize() for _ in range(n_grounds)]
+        bcs_js_n = [BoundaryComponentStatus.initialize() for _ in range(n_grounds)]
 
         return GroundConditions(
             q_srf_js_n=q_srf_js_n0,
-            bcs_js_n=bcss
+            bcs_js_n=bcs_js_n
         )
 
 
